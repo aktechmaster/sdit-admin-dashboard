@@ -40,7 +40,7 @@ async function initBiodataModule() {
 
     <!-- Modal Form Tambah / Edit Biodata -->
     <div class="modal fade" id="biodataModal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
         <div class="modal-content">
           <div class="modal-header bg-primary text-white">
             <h5 class="modal-title" id="biodataModalTitle">Tambah Data Guru / Karyawan</h5>
@@ -48,8 +48,8 @@ async function initBiodataModule() {
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <form id="biodataForm">
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+          <form id="biodataForm" style="display: flex; flex-direction: column; overflow: hidden;">
+            <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
               <input type="hidden" id="bioRowIndex" value="">
               
               <div class="row">
@@ -181,7 +181,7 @@ async function initBiodataModule() {
               </div>
 
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer bg-light" style="position: sticky; bottom: 0; z-index: 10;">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
               <button type="submit" class="btn btn-primary" id="btnSaveBiodata">Simpan Data</button>
             </div>
