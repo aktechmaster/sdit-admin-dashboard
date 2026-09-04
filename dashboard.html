@@ -12,7 +12,7 @@
   <!-- Theme style AdminLTE -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
   <!-- CSS Kustom Dashboard -->
-<link rel="stylesheet" href="css/custom.css">
+  <link rel="stylesheet" href="css/custom.css">
 
   <style>
     .main-sidebar {
@@ -93,11 +93,11 @@
           </li>
 
           <li class="nav-item">
-  <a href="#" id="navGuruKaryawan" class="nav-link">
-    <i class="nav-icon fas fa-user-tie"></i>
-    <p>Daftar Guru & Karyawan</p>
-  </a>
-</li>
+            <a href="#" class="nav-link" id="menuBiodata">
+              <i class="nav-icon fas fa-user-tie"></i>
+              <p>Daftar Guru & Karyawan</p>
+            </a>
+          </li>
 
           <li class="nav-item">
             <a href="#" class="nav-link" id="menuKelas">
@@ -169,14 +169,16 @@
 <!-- AdminLTE App -->
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 
-<!-- Script Aplikasi -->
+<!-- Script Utama (Folder js) -->
 <script src="js/config.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/table-engine.js"></script>
-<script src="modules/auth.js"></script>
-<script src="modules/users.js"></script>
-<script src="modules/biodata.js"></script> <!-- Tambahkan baris ini -->
-<script src="js/app.js"></script>
 
+<!-- Modul Aplikasi (Folder modules) -->
+<script src="modules/username.js"></script>
+<script src="modules/biodata.js"></script>
+
+<!-- Logika Navigasi Dashboard -->
 <script>
   $(document).ready(function () {
     // 1. Cek Autentikasi
@@ -199,21 +201,21 @@
     $('#menuBeranda').on('click', function (e) {
       e.preventDefault();
       setActiveMenu($(this));
-      location.reload(); // Memuat ulang tampilan awal beranda
+      location.reload();
     });
 
     // 5. Navigasi Menu Username
     $('#menuUsername').on('click', function (e) {
       e.preventDefault();
       setActiveMenu($(this));
-      initUsernameModule(); // Memanggil fungsi dari modules/username.js
+      initUsernameModule();
     });
 
     // 6. Navigasi Menu Guru & Karyawan (Biodata)
     $('#menuBiodata').on('click', function (e) {
       e.preventDefault();
       setActiveMenu($(this));
-      initBiodataModule(); // Memanggil fungsi dari modules/biodata.js
+      initBiodataModule();
     });
 
     // 7. Tombol Logout
