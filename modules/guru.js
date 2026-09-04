@@ -22,15 +22,13 @@ async function initGuruModule() {
           </button>
         </div>
         <div class="btn-group">
-          <button class="btn btn-outline-success btn-sm" onclick="exportBiodataData('csv')">
-            <i class="fas fa-file-csv mr-1"></i> Ekspor CSV
-          </button>
-          <button class="btn btn-outline-success btn-sm" onclick="exportBiodataData('excel')">
+          <button class="btn btn-success btn-sm font-weight-bold" onclick="exportGuruExcel()">
             <i class="fas fa-file-excel mr-1"></i> Ekspor Excel
           </button>
-          <button class="btn btn-outline-danger btn-sm" onclick="exportBiodataData('pdf')">
-            <i class="fas fa-file-pdf mr-1"></i> Ekspor PDF
+          <button class="btn btn-outline-success btn-sm font-weight-bold" onclick="triggerImportGuruExcel()">
+            <i class="fas fa-file-upload mr-1"></i> Impor Excel
           </button>
+          <input type="file" id="guruExcelFileInput" accept=".xlsx, .xls" style="display:none;" onchange="handleImportGuruExcel(event)">
         </div>
       </div>
     </div>
@@ -191,10 +189,8 @@ async function initGuruModule() {
     </div>
   `;
 
-  // Hubungkan Event Listener Form
   document.getElementById("biodataForm").addEventListener("submit", handleSaveBiodata);
 
-  // Inisialisasi DataTableEngine untuk Biodata Guru
   biodataTableEngine = new DataTableEngine({
     containerId: "biodataTableContainer",
     columns: [
@@ -242,14 +238,11 @@ async function initGuruModule() {
     data: []
   });
 
-  // Load Data dari API
   await loadBiodataData();
 }
 
-// Buat Alias Nama Fungsi Lama Agar Tetap Kompatibel
 const initBiodataModule = initGuruModule;
 
-// Load Data Biodata dari Apps Script
 async function loadBiodataData() {
   try {
     const response = await fetch(`${API_URL}?action=getBiodataData`);
@@ -267,7 +260,6 @@ async function loadBiodataData() {
   }
 }
 
-// Buka Modal Tambah Biodata
 function openModalAddBiodata() {
   document.getElementById("biodataModalTitle").textContent = "Tambah Data Guru / Karyawan";
   document.getElementById("bioRowIndex").value = "";
@@ -297,7 +289,6 @@ function openModalAddBiodata() {
   $("#biodataModal").modal("show");
 }
 
-// Buka Modal Edit Biodata
 function openModalEditBiodata(rowIndex) {
   const item = biodataRawData.find(b => b.rowIndex === rowIndex);
   if (!item) {
@@ -333,7 +324,6 @@ function openModalEditBiodata(rowIndex) {
   $("#biodataModal").modal("show");
 }
 
-// Handle Simpan Biodata
 async function handleSaveBiodata(e) {
   e.preventDefault();
   
@@ -396,7 +386,6 @@ async function handleSaveBiodata(e) {
   }
 }
 
-// Konfirmasi Hapus Biodata
 async function confirmDeleteBiodata(rowIndex, nama) {
   if (!confirm(`Apakah Anda yakin ingin menghapus data "${nama}"?`)) return;
 
@@ -426,28 +415,99 @@ async function confirmDeleteBiodata(rowIndex, nama) {
   }
 }
 
-// Ekspor Data Biodata
-function exportBiodataData(format) {
+// ------------------------------------------
+// FUNGSI EKSPOR & IMPOR EXCEL DATA GURU
+// ------------------------------------------
+
+function exportGuruExcel() {
   if (!biodataRawData || biodataRawData.length === 0) {
     alert("Tidak ada data untuk diekspor!");
     return;
   }
 
-  if (format === 'csv' || format === 'excel') {
-    let csvContent = "data:text/csv;charset=utf-8,No,Nama Lengkap,NIP/NIY,NUPTK,NIK,Jabatan Utama,Tugas Tambahan,Status Kepegawaian,Mata Pelajaran,Sertifikasi,Tempat Lahir,Tanggal Lahir,Jenis Kelamin,Agama,Alamat Domisili,No HP,Email,Pendidikan Terakhir,Jurusan,Kampus,Motto Hidup,Foto,BPI\n";
-    
-    biodataRawData.forEach((row, idx) => {
-      csvContent += `"${idx + 1}","${row.nama}","${row.nipNiy}","${row.nuptk}","${row.nik}","${row.jabatanUtama}","${row.tugasTambahan}","${row.statusKepegawaian}","${row.mataPelajaran}","${row.sertifikasi}","${row.tempatLahir}","${row.tanggalLahir}","${row.jenisKelamin}","${row.agama}","${row.alamatDomisili}","${row.noHp}","${row.email}","${row.pendidikanTerakhir}","${row.jurusan}","${row.kampus}","${row.mottoHidup}","${row.foto}","${row.bpi}"\n`;
-    });
+  const exportData = biodataRawData.map((row, idx) => ({
+    "No": idx + 1,
+    "Nama Lengkap": row.nama || "",
+    "NIP/NIY": row.nipNiy || "",
+    "NUPTK": row.nuptk || "",
+    "NIK": row.nik || "",
+    "Jabatan Utama": row.jabatanUtama || "",
+    "Tugas Tambahan": row.tugasTambahan || "",
+    "Status Kepegawaian": row.statusKepegawaian || "",
+    "Mata Pelajaran": row.mataPelajaran || "",
+    "Sertifikasi": row.sertifikasi || "",
+    "Tempat Lahir": row.tempatLahir || "",
+    "Tanggal Lahir": row.tanggalLahir || "",
+    "Jenis Kelamin": row.jenisKelamin || "",
+    "Agama": row.agama || "",
+    "Alamat Domisili": row.alamatDomisili || "",
+    "No HP": row.noHp || "",
+    "Email": row.email || "",
+    "Pendidikan Terakhir": row.pendidikanTerakhir || "",
+    "Jurusan": row.jurusan || "",
+    "Kampus": row.kampus || "",
+    "Motto Hidup": row.mottoHidup || "",
+    "Foto": row.foto || "",
+    "BPI": row.bpi || ""
+  }));
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Daftar_Guru_Karyawan_SDIT_${new Date().toISOString().slice(0,10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } else if (format === 'pdf') {
-    window.print();
-  }
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Data_Guru_Karyawan");
+  XLSX.writeFile(workbook, `Data_Guru_Karyawan_SDIT_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function triggerImportGuruExcel() {
+  document.getElementById("guruExcelFileInput").click();
+}
+
+async function handleImportGuruExcel(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+      if (jsonData.length === 0) {
+        alert("File Excel kosong atau tidak terbaca!");
+        return;
+      }
+
+      if (!confirm(`Ditemukan ${jsonData.length} baris data. Lanjutkan impor?`)) {
+        return;
+      }
+
+      const payload = {
+        action: "importBiodataBatch",
+        data: jsonData
+      };
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (result.status === "sukses") {
+        alert(result.pesan || "Berhasil mengimpor data!");
+        await loadBiodataData();
+      } else {
+        alert("Gagal impor: " + result.pesan);
+      }
+    } catch (err) {
+      console.error("Error Impor Excel:", err);
+      alert("Terjadi kesalahan saat memproses file Excel!");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
 }
