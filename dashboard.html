@@ -181,7 +181,7 @@
 
 <!-- Modul Aplikasi (Folder modules) -->
 <script src="modules/username.js"></script>
-<script src="modules/biodata.js"></script>
+<script src="modules/guru.js"></script>
 <script src="modules/kelas.js"></script>
 <script src="modules/siswa.js"></script>
 
@@ -199,40 +199,18 @@
     }
 
     // 3. Reset Status Menu Active
-    function setActiveMenu($element) {
+    $('.nav-sidebar .nav-link').on('click', function () {
       $('.nav-sidebar .nav-link').removeClass('active');
-      $element.addClass('active');
-    }
+      $(this).addClass('active');
+    });
 
     // 4. Navigasi Menu Beranda
     $('#menuBeranda').on('click', function (e) {
       e.preventDefault();
-      setActiveMenu($(this));
       location.reload();
     });
 
-    // 5. Navigasi Menu Username
-    $('#menuUsername').on('click', function (e) {
-      e.preventDefault();
-      setActiveMenu($(this));
-      initUsernameModule();
-    });
-
-    // 6. Navigasi Menu Guru & Karyawan (Biodata)
-    $('#menuBiodata').on('click', function (e) {
-      e.preventDefault();
-      setActiveMenu($(this));
-      initBiodataModule();
-    });
-
-    // 7. Navigasi Menu Kelas & Walas
-$('#menuKelas').on('click', function (e) {
-  e.preventDefault();
-  setActiveMenu($(this));
-  initKelasModule(); // Panggil modul kelas
-});
-
-    // 8. Tombol Logout
+    // 5. Tombol Logout
     $('#btnLogout').on('click', function (e) {
       e.preventDefault();
       if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
