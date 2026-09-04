@@ -209,7 +209,14 @@
       initUsernameModule(); // Memanggil fungsi dari modules/username.js
     });
 
-    // 6. Tombol Logout
+    // 6. Navigasi Menu Guru & Karyawan (Biodata)
+    $('#menuBiodata').on('click', function (e) {
+      e.preventDefault();
+      setActiveMenu($(this));
+      initBiodataModule(); // Memanggil fungsi dari modules/biodata.js
+    });
+
+    // 7. Tombol Logout
     $('#btnLogout').on('click', function (e) {
       e.preventDefault();
       if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
