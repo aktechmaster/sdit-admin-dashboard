@@ -1,5 +1,5 @@
 // ==========================================
-// MODUL MASTER DATA SISWA (15 KOLOM LENGKAP SPREADSHEET)
+// MODUL MASTER DATA SISWA (21 KOLOM LENGKAP SPREADSHEET)
 // ==========================================
 
 let siswaRawData = [];
@@ -55,14 +55,14 @@ async function initSiswaModule() {
 
           <!-- Pencarian -->
           <div class="col-md-8">
-            <input type="text" class="form-control form-control-sm" id="searchSiswaInput" placeholder="Cari Nama, NISN, NIK, Kelas, Alamat, Kelurahan..." oninput="handleSearchSiswa()">
+            <input type="text" class="form-control form-control-sm" id="searchSiswaInput" placeholder="Cari Nama Siswa, NISN, NIK, Kelas, Orang Tua..." oninput="handleSearchSiswa()">
           </div>
         </div>
       </div>
 
-      <!-- Table Container dengan Horizontal Scroll & Freeze Header -->
-<div class="card-body table-responsive-custom p-0">
-  <table class="table table-hover table-freeze-header text-nowrap" id="tableSiswa">
+      <!-- Table Container dengan Freeze Header -->
+      <div class="card-body table-responsive-custom p-0">
+        <table class="table table-hover table-freeze-header text-nowrap" id="tableSiswa">
           <thead class="bg-light">
             <tr>
               <th style="width: 40px;">No</th>
@@ -80,11 +80,18 @@ async function initSiswaModule() {
               <th>Dusun</th>
               <th>Kelurahan</th>
               <th>Kecamatan</th>
+              <!-- Kolom Tambahan Orang Tua (P - U) -->
+              <th>Nama Ayah</th>
+              <th>Pekerjaan Ayah</th>
+              <th>Nama Ibu</th>
+              <th>Pekerjaan Ibu</th>
+              <th>Nomor WA Ayah</th>
+              <th>Nomor WA Ibu</th>
               <th style="width: 100px;" class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody id="tbodySiswa">
-            <tr><td colspan="16" class="text-center py-4">Memuat data...</td></tr>
+            <tr><td colspan="22" class="text-center py-4">Memuat data...</td></tr>
           </tbody>
         </table>
       </div>
@@ -102,7 +109,7 @@ async function initSiswaModule() {
 
     <!-- Modal Form Lengkap Siswa -->
     <div class="modal fade" id="siswaModal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header bg-primary text-white">
             <h5 class="modal-title" id="siswaModalTitle">Form Data Siswa</h5>
@@ -115,11 +122,12 @@ async function initSiswaModule() {
               <input type="hidden" id="siswaRowIndex" value="">
               
               <div class="row">
-                <!-- Kolom Kiri -->
-                <div class="col-md-6">
+                <!-- Kolom 1: Identitas Siswa -->
+                <div class="col-md-4">
+                  <h6 class="font-weight-bold text-primary mb-3"><i class="fas fa-user mr-1"></i> Data Identitas</h6>
                   <div class="form-group">
                     <label for="inputID">ID / No</label>
-                    <input type="text" class="form-control" id="inputID" placeholder="Otomatis / Isi manual">
+                    <input type="text" class="form-control" id="inputID" placeholder="Otomatis / Manual">
                   </div>
                   <div class="form-group">
                     <label for="inputNamaSiswa">Nama Lengkap <span class="text-danger">*</span></label>
@@ -141,8 +149,8 @@ async function initSiswaModule() {
                     <input type="text" class="form-control" id="inputNISN" placeholder="Nomor NISN">
                   </div>
                   <div class="form-group">
-                    <label for="inputNIK">NIK</label>
-                    <input type="text" class="form-control" id="inputNIK" placeholder="Nomor Induk Kependudukan">
+                    <label for="inputNIK">NIK Siswa</label>
+                    <input type="text" class="form-control" id="inputNIK" placeholder="Nomor NIK Siswa">
                   </div>
                   <div class="form-group">
                     <label for="selectAgama">Agama</label>
@@ -152,13 +160,13 @@ async function initSiswaModule() {
                       <option value="Katolik">Katolik</option>
                       <option value="Hindu">Hindu</option>
                       <option value="Buddha">Buddha</option>
-                      <option value="Khonghucu">Khonghucu</option>
                     </select>
                   </div>
                 </div>
 
-                <!-- Kolom Kanan -->
-                <div class="col-md-6">
+                <!-- Kolom 2: Alamat Siswa -->
+                <div class="col-md-4">
+                  <h6 class="font-weight-bold text-primary mb-3"><i class="fas fa-map-marker-alt mr-1"></i> Tempat & Alamat</h6>
                   <div class="form-group">
                     <label for="inputTempatLahir">Tempat Lahir</label>
                     <input type="text" class="form-control" id="inputTempatLahir">
@@ -168,7 +176,7 @@ async function initSiswaModule() {
                     <input type="date" class="form-control" id="inputTanggalLahir">
                   </div>
                   <div class="form-group">
-                    <label for="inputAlamat">Alamat</label>
+                    <label for="inputAlamat">Alamat Jalan</label>
                     <input type="text" class="form-control" id="inputAlamat">
                   </div>
                   <div class="row">
@@ -194,6 +202,37 @@ async function initSiswaModule() {
                     <input type="text" class="form-control" id="inputKecamatan">
                   </div>
                 </div>
+
+                <!-- Kolom 3: Data Orang Tua (Kolom P - U) -->
+                <div class="col-md-4">
+                  <h6 class="font-weight-bold text-primary mb-3"><i class="fas fa-users mr-1"></i> Data Orang Tua</h6>
+                  <div class="form-group">
+                    <label for="inputNamaAyah">Nama Ayah</label>
+                    <input type="text" class="form-control" id="inputNamaAyah" placeholder="Nama Ayah Kandung">
+                  </div>
+                  <div class="form-group">
+                    <label for="inputPekerjaanAyah">Pekerjaan Ayah</label>
+                    <input type="text" class="form-control" id="inputPekerjaanAyah" placeholder="Pekerjaan Ayah">
+                  </div>
+                  <div class="form-group">
+                    <label for="inputWaAyah">Nomor WA Ayah</label>
+                    <input type="text" class="form-control" id="inputWaAyah" placeholder="Contoh: 081234567890">
+                  </div>
+                  <hr>
+                  <div class="form-group">
+                    <label for="inputNamaIbu">Nama Ibu</label>
+                    <input type="text" class="form-control" id="inputNamaIbu" placeholder="Nama Ibu Kandung">
+                  </div>
+                  <div class="form-group">
+                    <label for="inputPekerjaanIbu">Pekerjaan Ibu</label>
+                    <input type="text" class="form-control" id="inputPekerjaanIbu" placeholder="Pekerjaan Ibu">
+                  </div>
+                  <div class="form-group">
+                    <label for="inputWaIbu">Nomor WA Ibu</label>
+                    <input type="text" class="form-control" id="inputWaIbu" placeholder="Contoh: 081234567890">
+                  </div>
+                </div>
+
               </div>
             </div>
             <div class="modal-footer">
@@ -213,7 +252,7 @@ async function initSiswaModule() {
 // Load Data
 async function loadSiswaData() {
   const tbody = document.getElementById("tbodySiswa");
-  tbody.innerHTML = '<tr><td colspan="16" class="text-center py-4">Memuat data siswa...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="22" class="text-center py-4">Memuat data siswa...</td></tr>';
 
   try {
     const response = await fetch(`${API_URL}?action=getSiswaData`);
@@ -225,15 +264,15 @@ async function loadSiswaData() {
       currentPage = 1;
       renderTableWithPagination();
     } else {
-      tbody.innerHTML = `<tr><td colspan="16" class="text-center text-danger py-4">Gagal memuat: ${result.pesan}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="22" class="text-center text-danger py-4">Gagal memuat: ${result.pesan}</td></tr>`;
     }
   } catch (err) {
     console.error("Error Load Siswa:", err);
-    tbody.innerHTML = '<tr><td colspan="16" class="text-center text-danger py-4">Terjadi kesalahan koneksi!</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="22" class="text-center text-danger py-4">Terjadi kesalahan koneksi!</td></tr>';
   }
 }
 
-// Search Handler (Perbaikan String Conversion)
+// Search Handler
 function handleSearchSiswa() {
   const query = document.getElementById("searchSiswaInput").value.toLowerCase().trim();
 
@@ -248,6 +287,8 @@ function handleSearchSiswa() {
       const alamat = String(item.alamat || "").toLowerCase();
       const kelurahan = String(item.kelurahan || "").toLowerCase();
       const kecamatan = String(item.kecamatan || "").toLowerCase();
+      const namaAyah = String(item.namaAyah || "").toLowerCase();
+      const namaIbu = String(item.namaIbu || "").toLowerCase();
 
       return nama.includes(query) ||
              nipd.includes(query) ||
@@ -255,7 +296,9 @@ function handleSearchSiswa() {
              nik.includes(query) ||
              alamat.includes(query) ||
              kelurahan.includes(query) ||
-             kecamatan.includes(query);
+             kecamatan.includes(query) ||
+             namaAyah.includes(query) ||
+             namaIbu.includes(query);
     });
   }
 
@@ -270,19 +313,18 @@ function changePageSize(val) {
   renderTableWithPagination();
 }
 
-// Render Table + Pagination Logic
+// Render Table
 function renderTableWithPagination() {
   const tbody = document.getElementById("tbodySiswa");
   const totalItems = filteredSiswaData.length;
 
   if (totalItems === 0) {
-    tbody.innerHTML = '<tr><td colspan="16" class="text-center py-4">Data tidak ditemukan.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="22" class="text-center py-4">Data tidak ditemukan.</td></tr>';
     document.getElementById("paginationInfo").textContent = "Menampilkan 0 data";
     document.getElementById("paginationControls").innerHTML = "";
     return;
   }
 
-  // Calculate Slicing
   const effPageSize = pageSize === "all" ? totalItems : pageSize;
   const totalPages = Math.ceil(totalItems / effPageSize);
   if (currentPage > totalPages) currentPage = totalPages;
@@ -291,7 +333,7 @@ function renderTableWithPagination() {
   const endIndex = Math.min(startIndex + effPageSize, totalItems);
   const pageData = filteredSiswaData.slice(startIndex, endIndex);
 
-  // Render Table Rows (15 Kolom + Aksi)
+  // Render Rows (21 Kolom Data + 1 Aksi)
   let html = "";
   pageData.forEach((row, idx) => {
     html += `
@@ -311,6 +353,13 @@ function renderTableWithPagination() {
         <td>${row.dusun || '-'}</td>
         <td>${row.kelurahan || '-'}</td>
         <td>${row.kecamatan || '-'}</td>
+        <!-- Data Orang Tua P - U -->
+        <td>${row.namaAyah || '-'}</td>
+        <td>${row.pekerjaanAyah || '-'}</td>
+        <td>${row.namaIbu || '-'}</td>
+        <td>${row.pekerjaanIbu || '-'}</td>
+        <td>${row.waAyah || '-'}</td>
+        <td>${row.waIbu || '-'}</td>
         <td class="text-center">
           <button class="btn btn-xs btn-warning font-weight-bold mr-1" onclick="openModalEditSiswa(${row.rowIndex})">
             <i class="fas fa-edit"></i>
@@ -324,10 +373,7 @@ function renderTableWithPagination() {
   });
   tbody.innerHTML = html;
 
-  // Render Info Text
   document.getElementById("paginationInfo").textContent = `Menampilkan ${startIndex + 1} - ${endIndex} dari ${totalItems} data`;
-
-  // Render Pagination Buttons
   renderPaginationControls(totalPages);
 }
 
@@ -371,7 +417,7 @@ function goToPage(page) {
 }
 
 // ==========================================
-// FUNGSI EKSPOR & IMPOR EXCEL SISWA (XLSX)
+// EKSPOR & IMPOR EXCEL SISWA (21 KOLOM)
 // ==========================================
 
 function exportSiswaExcel() {
@@ -396,7 +442,13 @@ function exportSiswaExcel() {
     "RW": s.rw || "",
     "Dusun": s.dusun || "",
     "Kelurahan": s.kelurahan || "",
-    "Kecamatan": s.kecamatan || ""
+    "Kecamatan": s.kecamatan || "",
+    "Nama Ayah": s.namaAyah || "",
+    "Pekerjaan Ayah": s.pekerjaanAyah || "",
+    "Nama Ibu": s.namaIbu || "",
+    "Pekerjaan Ibu": s.pekerjaanIbu || "",
+    "Nomor WA Ayah": s.waAyah || "",
+    "Nomor WA Ibu": s.waIbu || ""
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -426,7 +478,7 @@ async function handleImportSiswaExcel(event) {
         return;
       }
 
-      // Pemetaan kolom Excel ke objek siswa
+      // Pemetaan kolom Excel ke objek siswa lengkap
       const siswaList = jsonData.map(row => ({
         id: String(row["ID"] || row["id"] || row["No"] || "").trim(),
         nama: String(row["Nama Siswa"] || row["Nama"] || row["nama"] || "").trim(),
@@ -442,8 +494,14 @@ async function handleImportSiswaExcel(event) {
         rw: String(row["RW"] || row["rw"] || "").trim(),
         dusun: String(row["Dusun"] || row["dusun"] || "").trim(),
         kelurahan: String(row["Kelurahan"] || row["kelurahan"] || "").trim(),
-        kecamatan: String(row["Kecamatan"] || row["kecamatan"] || "").trim()
-      })).filter(s => s.nama !== ""); // Hanya sertakan baris yang memiliki Nama Siswa
+        kecamatan: String(row["Kecamatan"] || row["kecamatan"] || "").trim(),
+        namaAyah: String(row["Nama Ayah"] || row["namaAyah"] || "").trim(),
+        pekerjaanAyah: String(row["Pekerjaan Ayah"] || row["pekerjaanAyah"] || "").trim(),
+        namaIbu: String(row["Nama Ibu"] || row["namaIbu"] || "").trim(),
+        pekerjaanIbu: String(row["Pekerjaan Ibu"] || row["pekerjaanIbu"] || "").trim(),
+        waAyah: String(row["Nomor WA Ayah"] || row["No WA Ayah"] || row["waAyah"] || "").trim(),
+        waIbu: String(row["Nomor WA Ibu"] || row["No WA Ibu"] || row["waIbu"] || "").trim()
+      })).filter(s => s.nama !== "");
 
       if (siswaList.length === 0) {
         alert("Tidak ada data siswa valid yang ditemukan di file Excel!");
@@ -484,7 +542,7 @@ async function handleImportSiswaExcel(event) {
   reader.readAsArrayBuffer(file);
 }
 
-// Modal Form Operations
+// Modal Handlers
 function openModalAddSiswa() {
   document.getElementById("siswaModalTitle").textContent = "Tambah Data Siswa";
   document.getElementById("siswaRowIndex").value = "";
@@ -513,6 +571,13 @@ function openModalEditSiswa(rowIndex) {
   document.getElementById("inputDusun").value = item.dusun && item.dusun !== '-' ? item.dusun : '';
   document.getElementById("inputKelurahan").value = item.kelurahan && item.kelurahan !== '-' ? item.kelurahan : '';
   document.getElementById("inputKecamatan").value = item.kecamatan && item.kecamatan !== '-' ? item.kecamatan : '';
+  // Populate Data Orang Tua (P - U)
+  document.getElementById("inputNamaAyah").value = item.namaAyah && item.namaAyah !== '-' ? item.namaAyah : '';
+  document.getElementById("inputPekerjaanAyah").value = item.pekerjaanAyah && item.pekerjaanAyah !== '-' ? item.pekerjaanAyah : '';
+  document.getElementById("inputNamaIbu").value = item.namaIbu && item.namaIbu !== '-' ? item.namaIbu : '';
+  document.getElementById("inputPekerjaanIbu").value = item.pekerjaanIbu && item.pekerjaanIbu !== '-' ? item.pekerjaanIbu : '';
+  document.getElementById("inputWaAyah").value = item.waAyah && item.waAyah !== '-' ? item.waAyah : '';
+  document.getElementById("inputWaIbu").value = item.waIbu && item.waIbu !== '-' ? item.waIbu : '';
 
   $("#siswaModal").modal("show");
 }
@@ -544,7 +609,14 @@ async function handleSaveSiswa(e) {
     rw: document.getElementById("inputRW").value.trim(),
     dusun: document.getElementById("inputDusun").value.trim(),
     kelurahan: document.getElementById("inputKelurahan").value.trim(),
-    kecamatan: document.getElementById("inputKecamatan").value.trim()
+    kecamatan: document.getElementById("inputKecamatan").value.trim(),
+    // Payload Data Orang Tua (P - U)
+    namaAyah: document.getElementById("inputNamaAyah").value.trim(),
+    pekerjaanAyah: document.getElementById("inputPekerjaanAyah").value.trim(),
+    namaIbu: document.getElementById("inputNamaIbu").value.trim(),
+    pekerjaanIbu: document.getElementById("inputPekerjaanIbu").value.trim(),
+    waAyah: document.getElementById("inputWaAyah").value.trim(),
+    waIbu: document.getElementById("inputWaIbu").value.trim()
   };
 
   try {
