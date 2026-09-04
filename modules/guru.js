@@ -1,12 +1,12 @@
 // ==========================================
-// MODUL BIODATA GURU & KARYAWAN SDIT AL-KAUTSAR
+// MODUL GURU & KARYAWAN SDIT AL-KAUTSAR
 // ==========================================
 
 let biodataTableEngine = null;
 let biodataRawData = [];
 
-// Fungsi Utama Inisialisasi Modul Biodata
-async function initBiodataModule() {
+// Fungsi Utama Inisialisasi Modul Guru
+async function initGuruModule() {
   const mainContent = document.getElementById("mainContent");
   const pageTitle = document.getElementById("pageTitle");
 
@@ -245,6 +245,9 @@ async function initBiodataModule() {
   // Load Data dari API
   await loadBiodataData();
 }
+
+// Buat Alias Nama Fungsi Lama Agar Tetap Kompatibel
+const initBiodataModule = initGuruModule;
 
 // Load Data Biodata dari Apps Script
 async function loadBiodataData() {
