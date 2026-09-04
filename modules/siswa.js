@@ -1,5 +1,5 @@
 // ==========================================
-// MODUL MASTER DATA SISWA (FITUR LENGKAP)
+// MODUL MASTER DATA SISWA (15 KOLOM LENGKAP SPREADSHEET)
 // ==========================================
 
 let siswaRawData = [];
@@ -37,7 +37,7 @@ async function initSiswaModule() {
     <div class="card card-outline card-primary">
       <div class="card-header bg-white py-3">
         <div class="row align-items-center">
-          <!-- Page Size Limiter -->
+          <!-- Limit Tampilan -->
           <div class="col-md-4 d-flex align-items-center mb-2 mb-md-0">
             <span class="mr-2 text-muted">Tampilkan</span>
             <select class="form-control form-control-sm w-auto mr-2" id="pageSizeSelect" onchange="changePageSize(this.value)">
@@ -50,30 +50,38 @@ async function initSiswaModule() {
             <span class="text-muted">data</span>
           </div>
 
-          <!-- Live Search -->
+          <!-- Pencarian -->
           <div class="col-md-8">
-            <input type="text" class="form-control form-control-sm" id="searchSiswaInput" placeholder="Cari Nama, NISN, NIK, atau Kelas..." onkeyup="handleSearchSiswa()">
+            <input type="text" class="form-control form-control-sm" id="searchSiswaInput" placeholder="Cari Nama, NISN, NIK, Kelas, Alamat, Kelurahan..." onkeyup="handleSearchSiswa()">
           </div>
         </div>
       </div>
 
+      <!-- Table Container dengan Horizontal Scroll -->
       <div class="card-body table-responsive p-0">
         <table class="table table-hover text-nowrap" id="tableSiswa">
           <thead class="bg-light">
             <tr>
-              <th style="width: 50px;">No</th>
+              <th style="width: 40px;">No</th>
               <th>Nama Siswa</th>
-              <th>Kelas / NIPD</th>
+              <th>NIPD (Kelas)</th>
               <th>L/P</th>
               <th>NISN</th>
+              <th>Tempat Lahir</th>
+              <th>Tgl Lahir</th>
               <th>NIK</th>
-              <th>Tempat, Tgl Lahir</th>
               <th>Agama</th>
-              <th style="width: 130px;" class="text-center">Aksi</th>
+              <th>Alamat</th>
+              <th>RT</th>
+              <th>RW</th>
+              <th>Dusun</th>
+              <th>Kelurahan</th>
+              <th>Kecamatan</th>
+              <th style="width: 100px;" class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody id="tbodySiswa">
-            <tr><td colspan="9" class="text-center py-4">Memuat data...</td></tr>
+            <tr><td colspan="16" class="text-center py-4">Memuat data...</td></tr>
           </tbody>
         </table>
       </div>
@@ -104,6 +112,7 @@ async function initSiswaModule() {
               <input type="hidden" id="siswaRowIndex" value="">
               
               <div class="row">
+                <!-- Kolom Kiri -->
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="inputID">ID / No</label>
@@ -145,6 +154,7 @@ async function initSiswaModule() {
                   </div>
                 </div>
 
+                <!-- Kolom Kanan -->
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="inputTempatLahir">Tempat Lahir</label>
@@ -228,7 +238,7 @@ async function initSiswaModule() {
 // Load Data
 async function loadSiswaData() {
   const tbody = document.getElementById("tbodySiswa");
-  tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4">Memuat data siswa...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="16" class="text-center py-4">Memuat data siswa...</td></tr>';
 
   try {
     const response = await fetch(`${API_URL}?action=getSiswaData`);
@@ -240,11 +250,11 @@ async function loadSiswaData() {
       currentPage = 1;
       renderTableWithPagination();
     } else {
-      tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">Gagal memuat: ${result.pesan}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="16" class="text-center text-danger py-4">Gagal memuat: ${result.pesan}</td></tr>`;
     }
   } catch (err) {
     console.error("Error Load Siswa:", err);
-    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger py-4">Terjadi kesalahan koneksi!</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="16" class="text-center text-danger py-4">Terjadi kesalahan koneksi!</td></tr>';
   }
 }
 
@@ -256,14 +266,17 @@ function handleSearchSiswa() {
       (item.nama && item.nama.toLowerCase().includes(query)) ||
       (item.nipd && item.nipd.toLowerCase().includes(query)) ||
       (item.nisn && item.nisn.toLowerCase().includes(query)) ||
-      (item.nik && item.nik.toLowerCase().includes(query))
+      (item.nik && item.nik.toLowerCase().includes(query)) ||
+      (item.alamat && item.alamat.toLowerCase().includes(query)) ||
+      (item.kelurahan && item.kelurahan.toLowerCase().includes(query)) ||
+      (item.kecamatan && item.kecamatan.toLowerCase().includes(query))
     );
   });
   currentPage = 1;
   renderTableWithPagination();
 }
 
-// Change Page Size Limit (20, 30, 50, 100, Semua)
+// Change Page Size Limit
 function changePageSize(val) {
   pageSize = val === "all" ? filteredSiswaData.length : parseInt(val);
   currentPage = 1;
@@ -276,7 +289,7 @@ function renderTableWithPagination() {
   const totalItems = filteredSiswaData.length;
 
   if (totalItems === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4">Data tidak ditemukan.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="16" class="text-center py-4">Data tidak ditemukan.</td></tr>';
     document.getElementById("paginationInfo").textContent = "Menampilkan 0 data";
     document.getElementById("paginationControls").innerHTML = "";
     return;
@@ -291,13 +304,9 @@ function renderTableWithPagination() {
   const endIndex = Math.min(startIndex + effPageSize, totalItems);
   const pageData = filteredSiswaData.slice(startIndex, endIndex);
 
-  // Render Table Rows
+  // Render Table Rows (15 Kolom + Aksi)
   let html = "";
   pageData.forEach((row, idx) => {
-    const ttl = (row.tempatLahir !== '-' || row.tanggalLahir !== '-') 
-      ? `${row.tempatLahir}, ${row.tanggalLahir}` 
-      : '-';
-
     html += `
       <tr>
         <td>${startIndex + idx + 1}</td>
@@ -305,9 +314,16 @@ function renderTableWithPagination() {
         <td>${row.nipd}</td>
         <td>${row.jk}</td>
         <td>${row.nisn}</td>
+        <td>${row.tempatLahir}</td>
+        <td>${row.tanggalLahir}</td>
         <td>${row.nik}</td>
-        <td>${ttl}</td>
         <td>${row.agama}</td>
+        <td>${row.alamat}</td>
+        <td>${row.rt}</td>
+        <td>${row.rw}</td>
+        <td>${row.dusun}</td>
+        <td>${row.kelurahan}</td>
+        <td>${row.kecamatan}</td>
         <td class="text-center">
           <button class="btn btn-xs btn-warning font-weight-bold mr-1" onclick="openModalEditSiswa(${row.rowIndex})">
             <i class="fas fa-edit"></i>
@@ -417,14 +433,13 @@ function processCSVImport() {
     const lines = text.split("\n");
     const siswaList = [];
 
-    for (let i = 1; i < lines.length; i++) { // Skip header
+    for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
 
-      // Split CSV dengan penanganan tanda petik
       const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
 
-      if (cols.length >= 2 && cols[1] !== "") { // Nama wajib ada
+      if (cols.length >= 2 && cols[1] !== "") {
         siswaList.push({
           id: cols[0] || "",
           nama: cols[1] || "",
