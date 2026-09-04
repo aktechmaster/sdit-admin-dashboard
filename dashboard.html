@@ -171,21 +171,43 @@
 
 <!-- Script Aplikasi -->
 <script src="js/config.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/table-handler.js"></script>
+<script src="modules/username.js"></script>
 
 <script>
   $(document).ready(function () {
-    // 1. Cek Autentikasi terlebih dahulu
+    // 1. Cek Autentikasi
     checkAuth();
 
-    // 2. Tampilkan data pengguna yang sedang login
+    // 2. Tampilkan Data Pengguna Sesi Ini
     const user = getCurrentUser();
     if (user) {
       $('#userDisplayName').text(user.nama || user.username);
       $('#userDisplayRole').text(user.jabatan || 'Pengguna');
     }
 
-    // 3. Event Listener Tombol Logout
+    // 3. Reset Status Menu Active
+    function setActiveMenu($element) {
+      $('.nav-sidebar .nav-link').removeClass('active');
+      $element.addClass('active');
+    }
+
+    // 4. Navigasi Menu Beranda
+    $('#menuBeranda').on('click', function (e) {
+      e.preventDefault();
+      setActiveMenu($(this));
+      location.reload(); // Memuat ulang tampilan awal beranda
+    });
+
+    // 5. Navigasi Menu Username
+    $('#menuUsername').on('click', function (e) {
+      e.preventDefault();
+      setActiveMenu($(this));
+      initUsernameModule(); // Memanggil fungsi dari modules/username.js
+    });
+
+    // 6. Tombol Logout
     $('#btnLogout').on('click', function (e) {
       e.preventDefault();
       if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
