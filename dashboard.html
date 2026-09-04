@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - SDIT Al-Kautsar</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Theme style AdminLTE -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+
+  <style>
+    .main-sidebar {
+      background-color: #343a40;
+    }
+    .brand-link {
+      border-bottom: 1px solid #4b545c;
+    }
+    .nav-sidebar .nav-link.active {
+      background-color: #007bff !important;
+      color: #ffffff !important;
+    }
+  </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+  <!-- Navbar Atas -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <span class="nav-link font-weight-bold text-dark">Dashboard Admin Digital SDIT Al-Kautsar</span>
+      </li>
+    </ul>
+
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <button id="btnLogout" class="btn btn-outline-danger btn-sm">
+          <i class="fas fa-sign-out-alt mr-1"></i> Keluar
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="dashboard.html" class="brand-link text-center">
+      <span class="brand-text font-weight-bold">SDIT AL-KAUTSAR</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel -->
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
+        <div class="image">
+          <i class="fas fa-user-circle fa-2x text-light"></i>
+        </div>
+        <div class="info">
+          <a href="#" class="d-block font-weight-bold" id="userDisplayName">Memuat...</a>
+          <small class="text-muted d-block" id="userDisplayRole">-</small>
+        </div>
+      </div>
+
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          
+          <li class="nav-item">
+            <a href="#" class="nav-link active" id="menuBeranda">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>Beranda</p>
+            </a>
+          </li>
+
+          <li class="nav-header">MODUL UTAMA (CRUD)</li>
+          
+          <li class="nav-item">
+            <a href="#" class="nav-link" id="menuUsername">
+              <i class="nav-icon fas fa-users-cog"></i>
+              <p>Manajemen Username</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="#" class="nav-link" id="menuBiodata">
+              <i class="nav-icon fas fa-school"></i>
+              <p>Biodata Sekolah</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="#" class="nav-link" id="menuKelas">
+              <i class="nav-icon fas fa-chalkboard-teacher"></i>
+              <p>Kelas & Wali Kelas</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="#" class="nav-link" id="menuSiswa">
+              <i class="nav-icon fas fa-user-graduate"></i>
+              <p>Master Data Siswa</p>
+            </a>
+          </li>
+
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0" id="pageTitle">Beranda Utama</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid" id="mainContent">
+        
+        <!-- Kartu Selamat Datang / Ringkasan Awal -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-primary card-outline">
+              <div class="card-body">
+                <h5 class="card-title font-weight-bold">Selamat Datang di Sistem Informasi SDIT Al-Kautsar</h5>
+                <p class="card-text mt-2">
+                  Sistem ini terhubung langsung secara terisolasi ke database Google Spreadsheet SDIT Al-Kautsar. Silakan gunakan menu di sebelah kiri untuk mengelola data.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- Main Footer -->
+  <footer class="main-footer text-sm">
+    <div class="float-right d-none d-sm-inline">
+      Versi 1.0.0
+    </div>
+    <strong>Copyright &copy; 2026 SDIT Al-Kautsar.</strong> All rights reserved.
+  </footer>
+</div>
+
+<!-- jQuery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE App -->
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+
+<!-- Script Aplikasi -->
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+  $(document).ready(function () {
+    // 1. Cek Autentikasi terlebih dahulu
+    checkAuth();
+
+    // 2. Tampilkan data pengguna yang sedang login
+    const user = getCurrentUser();
+    if (user) {
+      $('#userDisplayName').text(user.nama || user.username);
+      $('#userDisplayRole').text(user.jabatan || 'Pengguna');
+    }
+
+    // 3. Event Listener Tombol Logout
+    $('#btnLogout').on('click', function (e) {
+      e.preventDefault();
+      if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
+        logoutUser();
+      }
+    });
+  });
+</script>
+</body>
+</html>
