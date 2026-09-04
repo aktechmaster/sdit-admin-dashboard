@@ -49,7 +49,7 @@ async function initBiodataModule() {
             </button>
           </div>
           <form id="biodataForm">
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
               <input type="hidden" id="bioRowIndex" value="">
               
               <div class="row">
