@@ -60,9 +60,9 @@ async function initSiswaModule() {
         </div>
       </div>
 
-      <!-- Table Container dengan Horizontal Scroll -->
-      <div class="card-body table-responsive p-0">
-        <table class="table table-hover text-nowrap" id="tableSiswa">
+      <!-- Table Container dengan Horizontal Scroll & Freeze Header -->
+<div class="card-body table-responsive-custom p-0">
+  <table class="table table-hover table-freeze-header text-nowrap" id="tableSiswa">
           <thead class="bg-light">
             <tr>
               <th style="width: 40px;">No</th>
