@@ -21,12 +21,15 @@ async function initSiswaModule() {
         <h5 class="m-0 font-weight-bold">Daftar Seluruh Siswa</h5>
       </div>
       <div class="col-md-6 text-md-right">
-        <button class="btn btn-outline-success font-weight-bold mr-1" onclick="exportSiswaToCSV()">
-          <i class="fas fa-file-excel mr-1"></i> Ekspor CSV
-        </button>
-        <button class="btn btn-outline-info font-weight-bold mr-1" onclick="openModalImportSiswa()">
-          <i class="fas fa-file-import mr-1"></i> Impor CSV
-        </button>
+        <div class="btn-group mr-1">
+          <button class="btn btn-success font-weight-bold" onclick="exportSiswaExcel()">
+            <i class="fas fa-file-excel mr-1"></i> Ekspor Excel
+          </button>
+          <button class="btn btn-outline-success font-weight-bold" onclick="triggerImportSiswaExcel()">
+            <i class="fas fa-file-upload mr-1"></i> Impor Excel
+          </button>
+          <input type="file" id="siswaExcelFileInput" accept=".xlsx, .xls" style="display:none;" onchange="handleImportSiswaExcel(event)">
+        </div>
         <button class="btn btn-primary font-weight-bold" onclick="openModalAddSiswa()">
           <i class="fas fa-plus mr-1"></i> Tambah Siswa
         </button>
@@ -52,7 +55,7 @@ async function initSiswaModule() {
 
           <!-- Pencarian -->
           <div class="col-md-8">
-            <input type="text" class="form-control form-control-sm" id="searchSiswaInput" placeholder="Cari Nama, NISN, NIK, Kelas, Alamat, Kelurahan..." onkeyup="handleSearchSiswa()">
+            <input type="text" class="form-control form-control-sm" id="searchSiswaInput" placeholder="Cari Nama, NISN, NIK, Kelas, Alamat, Kelurahan..." oninput="handleSearchSiswa()">
           </div>
         </div>
       </div>
@@ -201,34 +204,6 @@ async function initSiswaModule() {
         </div>
       </div>
     </div>
-
-    <!-- Modal Impor CSV -->
-    <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header bg-info text-white">
-            <h5 class="modal-title"><i class="fas fa-file-import mr-2"></i>Impor Data Siswa (CSV)</h5>
-            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p class="small text-muted mb-2">
-              Pilih file CSV dengan urutan kolom: <br>
-              <code>ID, Nama, NIPD, JK, NISN, Tempat Lahir, Tanggal Lahir, NIK, Agama, Alamat, RT, RW, Dusun, Kelurahan, Kecamatan</code>
-            </p>
-            <div class="form-group">
-              <label for="csvFileInput">File CSV</label>
-              <input type="file" class="form-control-file" id="csvFileInput" accept=".csv">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-            <button type="button" class="btn btn-info" id="btnProcessImport" onclick="processCSVImport()">Proses Impor</button>
-          </div>
-        </div>
-      </div>
-    </div>
   `;
 
   document.getElementById("siswaForm").addEventListener("submit", handleSaveSiswa);
@@ -258,20 +233,32 @@ async function loadSiswaData() {
   }
 }
 
-// Search Handler
+// Search Handler (Perbaikan String Conversion)
 function handleSearchSiswa() {
   const query = document.getElementById("searchSiswaInput").value.toLowerCase().trim();
-  filteredSiswaData = siswaRawData.filter(item => {
-    return (
-      (item.nama && item.nama.toLowerCase().includes(query)) ||
-      (item.nipd && item.nipd.toLowerCase().includes(query)) ||
-      (item.nisn && item.nisn.toLowerCase().includes(query)) ||
-      (item.nik && item.nik.toLowerCase().includes(query)) ||
-      (item.alamat && item.alamat.toLowerCase().includes(query)) ||
-      (item.kelurahan && item.kelurahan.toLowerCase().includes(query)) ||
-      (item.kecamatan && item.kecamatan.toLowerCase().includes(query))
-    );
-  });
+
+  if (!query) {
+    filteredSiswaData = [...siswaRawData];
+  } else {
+    filteredSiswaData = siswaRawData.filter(item => {
+      const nama = String(item.nama || "").toLowerCase();
+      const nipd = String(item.nipd || "").toLowerCase();
+      const nisn = String(item.nisn || "").toLowerCase();
+      const nik = String(item.nik || "").toLowerCase();
+      const alamat = String(item.alamat || "").toLowerCase();
+      const kelurahan = String(item.kelurahan || "").toLowerCase();
+      const kecamatan = String(item.kecamatan || "").toLowerCase();
+
+      return nama.includes(query) ||
+             nipd.includes(query) ||
+             nisn.includes(query) ||
+             nik.includes(query) ||
+             alamat.includes(query) ||
+             kelurahan.includes(query) ||
+             kecamatan.includes(query);
+    });
+  }
+
   currentPage = 1;
   renderTableWithPagination();
 }
@@ -310,20 +297,20 @@ function renderTableWithPagination() {
     html += `
       <tr>
         <td>${startIndex + idx + 1}</td>
-        <td class="font-weight-bold">${row.nama}</td>
-        <td>${row.nipd}</td>
-        <td>${row.jk}</td>
-        <td>${row.nisn}</td>
-        <td>${row.tempatLahir}</td>
-        <td>${row.tanggalLahir}</td>
-        <td>${row.nik}</td>
-        <td>${row.agama}</td>
-        <td>${row.alamat}</td>
-        <td>${row.rt}</td>
-        <td>${row.rw}</td>
-        <td>${row.dusun}</td>
-        <td>${row.kelurahan}</td>
-        <td>${row.kecamatan}</td>
+        <td class="font-weight-bold">${row.nama || '-'}</td>
+        <td>${row.nipd || '-'}</td>
+        <td>${row.jk || '-'}</td>
+        <td>${row.nisn || '-'}</td>
+        <td>${row.tempatLahir || '-'}</td>
+        <td>${row.tanggalLahir || '-'}</td>
+        <td>${row.nik || '-'}</td>
+        <td>${row.agama || '-'}</td>
+        <td>${row.alamat || '-'}</td>
+        <td>${row.rt || '-'}</td>
+        <td>${row.rw || '-'}</td>
+        <td>${row.dusun || '-'}</td>
+        <td>${row.kelurahan || '-'}</td>
+        <td>${row.kecamatan || '-'}</td>
         <td class="text-center">
           <button class="btn btn-xs btn-warning font-weight-bold mr-1" onclick="openModalEditSiswa(${row.rowIndex})">
             <i class="fas fa-edit"></i>
@@ -383,117 +370,118 @@ function goToPage(page) {
   renderTableWithPagination();
 }
 
-// FITUR EKSPOR DATA KE CSV
-function exportSiswaToCSV() {
+// ==========================================
+// FUNGSI EKSPOR & IMPOR EXCEL SISWA (XLSX)
+// ==========================================
+
+function exportSiswaExcel() {
   if (!siswaRawData || siswaRawData.length === 0) {
-    alert("Tidak ada data untuk diekspor!");
+    alert("Tidak ada data siswa untuk diekspor!");
     return;
   }
 
-  let csvContent = "\uFEFF"; // BOM untuk UTF-8
-  csvContent += "ID,Nama,NIPD (Kelas),JK,NISN,Tempat Lahir,Tanggal Lahir,NIK,Agama,Alamat,RT,RW,Dusun,Kelurahan,Kecamatan\n";
+  const exportData = siswaRawData.map((s, idx) => ({
+    "No": idx + 1,
+    "ID": s.id || "",
+    "Nama Siswa": s.nama || "",
+    "NIPD (Kelas)": s.nipd || "",
+    "L/P": s.jk || "",
+    "NISN": s.nisn || "",
+    "Tempat Lahir": s.tempatLahir || "",
+    "Tanggal Lahir": s.tanggalLahir || "",
+    "NIK": s.nik || "",
+    "Agama": s.agama || "",
+    "Alamat": s.alamat || "",
+    "RT": s.rt || "",
+    "RW": s.rw || "",
+    "Dusun": s.dusun || "",
+    "Kelurahan": s.kelurahan || "",
+    "Kecamatan": s.kecamatan || ""
+  }));
 
-  siswaRawData.forEach(s => {
-    const row = [
-      `"${s.id}"`, `"${s.nama}"`, `"${s.nipd}"`, `"${s.jk}"`, `"${s.nisn}"`,
-      `"${s.tempatLahir}"`, `"${s.tanggalLahir}"`, `"${s.nik}"`, `"${s.agama}"`,
-      `"${s.alamat}"`, `"${s.rt}"`, `"${s.rw}"`, `"${s.dusun}"`, `"${s.kelurahan}"`, `"${s.kecamatan}"`
-    ];
-    csvContent += row.join(",") + "\n";
-  });
-
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute("download", `Master_Data_Siswa_${new Date().toISOString().slice(0,10)}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Data_Siswa");
+  XLSX.writeFile(workbook, `Master_Data_Siswa_SDIT_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 
-// FITUR IMPOR DATA DARI CSV
-function openModalImportSiswa() {
-  document.getElementById("csvFileInput").value = "";
-  $("#importModal").modal("show");
+function triggerImportSiswaExcel() {
+  document.getElementById("siswaExcelFileInput").click();
 }
 
-function processCSVImport() {
-  const fileInput = document.getElementById("csvFileInput");
-  if (!fileInput.files.length) {
-    alert("Pilih file CSV terlebih dahulu!");
-    return;
-  }
+async function handleImportSiswaExcel(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-  const file = fileInput.files[0];
   const reader = new FileReader();
-
   reader.onload = async function(e) {
-    const text = e.target.result;
-    const lines = text.split("\n");
-    const siswaList = [];
-
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-
-      const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-
-      if (cols.length >= 2 && cols[1] !== "") {
-        siswaList.push({
-          id: cols[0] || "",
-          nama: cols[1] || "",
-          nipd: cols[2] || "",
-          jk: cols[3] || "L",
-          nisn: cols[4] || "",
-          tempatLahir: cols[5] || "",
-          tanggalLahir: cols[6] || "",
-          nik: cols[7] || "",
-          agama: cols[8] || "Islam",
-          alamat: cols[9] || "",
-          rt: cols[10] || "",
-          rw: cols[11] || "",
-          dusun: cols[12] || "",
-          kelurahan: cols[13] || "",
-          kecamatan: cols[14] || ""
-        });
-      }
-    }
-
-    if (siswaList.length === 0) {
-      alert("Tidak ada data valid yang ditemukan di dalam CSV!");
-      return;
-    }
-
-    const btn = document.getElementById("btnProcessImport");
-    btn.disabled = true;
-    btn.textContent = "Mengimpor...";
-
     try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+      if (!jsonData || jsonData.length === 0) {
+        alert("File Excel kosong atau format tidak sesuai!");
+        return;
+      }
+
+      // Pemetaan kolom Excel ke objek siswa
+      const siswaList = jsonData.map(row => ({
+        id: String(row["ID"] || row["id"] || row["No"] || "").trim(),
+        nama: String(row["Nama Siswa"] || row["Nama"] || row["nama"] || "").trim(),
+        nipd: String(row["NIPD (Kelas)"] || row["NIPD"] || row["Kelas"] || row["nipd"] || "").trim(),
+        jk: String(row["L/P"] || row["JK"] || row["Jenis Kelamin"] || row["jk"] || "L").trim(),
+        nisn: String(row["NISN"] || row["nisn"] || "").trim(),
+        tempatLahir: String(row["Tempat Lahir"] || row["tempatLahir"] || "").trim(),
+        tanggalLahir: String(row["Tanggal Lahir"] || row["Tgl Lahir"] || row["tanggalLahir"] || "").trim(),
+        nik: String(row["NIK"] || row["nik"] || "").trim(),
+        agama: String(row["Agama"] || row["agama"] || "Islam").trim(),
+        alamat: String(row["Alamat"] || row["alamat"] || "").trim(),
+        rt: String(row["RT"] || row["rt"] || "").trim(),
+        rw: String(row["RW"] || row["rw"] || "").trim(),
+        dusun: String(row["Dusun"] || row["dusun"] || "").trim(),
+        kelurahan: String(row["Kelurahan"] || row["kelurahan"] || "").trim(),
+        kecamatan: String(row["Kecamatan"] || row["kecamatan"] || "").trim()
+      })).filter(s => s.nama !== ""); // Hanya sertakan baris yang memiliki Nama Siswa
+
+      if (siswaList.length === 0) {
+        alert("Tidak ada data siswa valid yang ditemukan di file Excel!");
+        return;
+      }
+
+      if (!confirm(`Ditemukan ${siswaList.length} data siswa valid. Lanjutkan proses impor?`)) {
+        return;
+      }
+
+      const payload = {
+        action: "bulkAddSiswa",
+        siswaList: siswaList
+      };
+
       const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "bulkAddSiswa", siswaList: siswaList })
+        body: JSON.stringify(payload)
       });
+
       const result = await response.json();
 
       if (result.status === "sukses") {
-        $("#importModal").modal("hide");
-        alert(result.pesan);
+        alert(result.pesan || "Berhasil mengimpor data siswa!");
         await loadSiswaData();
       } else {
         alert("Gagal mengimpor: " + result.pesan);
       }
     } catch (err) {
-      console.error("Error Import:", err);
-      alert("Terjadi kesalahan koneksi saat mengimpor!");
+      console.error("Error Import Excel Siswa:", err);
+      alert("Terjadi kesalahan saat memproses file Excel!");
     } finally {
-      btn.disabled = false;
-      btn.textContent = "Proses Impor";
+      event.target.value = "";
     }
   };
 
-  reader.readAsText(file);
+  reader.readAsArrayBuffer(file);
 }
 
 // Modal Form Operations
@@ -510,21 +498,21 @@ function openModalEditSiswa(rowIndex) {
 
   document.getElementById("siswaModalTitle").textContent = "Edit Data Siswa";
   document.getElementById("siswaRowIndex").value = item.rowIndex;
-  document.getElementById("inputID").value = item.id !== '-' ? item.id : '';
-  document.getElementById("inputNamaSiswa").value = item.nama !== '-' ? item.nama : '';
-  document.getElementById("inputNIPD").value = item.nipd !== '-' ? item.nipd : '';
+  document.getElementById("inputID").value = item.id && item.id !== '-' ? item.id : '';
+  document.getElementById("inputNamaSiswa").value = item.nama && item.nama !== '-' ? item.nama : '';
+  document.getElementById("inputNIPD").value = item.nipd && item.nipd !== '-' ? item.nipd : '';
   document.getElementById("selectJKSiswa").value = item.jk === 'P' ? 'P' : 'L';
-  document.getElementById("inputNISN").value = item.nisn !== '-' ? item.nisn : '';
-  document.getElementById("inputTempatLahir").value = item.tempatLahir !== '-' ? item.tempatLahir : '';
-  document.getElementById("inputTanggalLahir").value = item.tanggalLahir !== '-' ? item.tanggalLahir : '';
-  document.getElementById("inputNIK").value = item.nik !== '-' ? item.nik : '';
-  document.getElementById("selectAgama").value = item.agama !== '-' ? item.agama : 'Islam';
-  document.getElementById("inputAlamat").value = item.alamat !== '-' ? item.alamat : '';
-  document.getElementById("inputRT").value = item.rt !== '-' ? item.rt : '';
-  document.getElementById("inputRW").value = item.rw !== '-' ? item.rw : '';
-  document.getElementById("inputDusun").value = item.dusun !== '-' ? item.dusun : '';
-  document.getElementById("inputKelurahan").value = item.kelurahan !== '-' ? item.kelurahan : '';
-  document.getElementById("inputKecamatan").value = item.kecamatan !== '-' ? item.kecamatan : '';
+  document.getElementById("inputNISN").value = item.nisn && item.nisn !== '-' ? item.nisn : '';
+  document.getElementById("inputTempatLahir").value = item.tempatLahir && item.tempatLahir !== '-' ? item.tempatLahir : '';
+  document.getElementById("inputTanggalLahir").value = item.tanggalLahir && item.tanggalLahir !== '-' ? item.tanggalLahir : '';
+  document.getElementById("inputNIK").value = item.nik && item.nik !== '-' ? item.nik : '';
+  document.getElementById("selectAgama").value = item.agama && item.agama !== '-' ? item.agama : 'Islam';
+  document.getElementById("inputAlamat").value = item.alamat && item.alamat !== '-' ? item.alamat : '';
+  document.getElementById("inputRT").value = item.rt && item.rt !== '-' ? item.rt : '';
+  document.getElementById("inputRW").value = item.rw && item.rw !== '-' ? item.rw : '';
+  document.getElementById("inputDusun").value = item.dusun && item.dusun !== '-' ? item.dusun : '';
+  document.getElementById("inputKelurahan").value = item.kelurahan && item.kelurahan !== '-' ? item.kelurahan : '';
+  document.getElementById("inputKecamatan").value = item.kecamatan && item.kecamatan !== '-' ? item.kecamatan : '';
 
   $("#siswaModal").modal("show");
 }
