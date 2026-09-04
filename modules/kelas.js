@@ -1,15 +1,22 @@
-// Modul Manajemen Kelas & Wali Kelas
-let dataGuruCache = [];
+// ==========================================
+// MODUL KELAS & WALI KELAS SDIT AL-KAUTSAR
+// ==========================================
 
-function initKelasModule() {
-  $('#pageTitle').text('Manajemen Kelas & Wali Kelas');
+let kelasRawData = [];
+let guruDropdownList = [];
 
-  // HTML Struktur Utama
-  const html = `
+// Inisialisasi Utama Modul Kelas
+async function initKelasModule() {
+  const mainContent = document.getElementById("mainContent");
+  const pageTitle = document.getElementById("pageTitle");
+
+  if (pageTitle) pageTitle.textContent = "Kelas & Wali Kelas";
+
+  mainContent.innerHTML = `
     <div class="row mb-3">
       <div class="col-12 d-flex justify-content-between align-items-center">
         <h5 class="m-0 font-weight-bold">Daftar Kelas & Walas</h5>
-        <button class="btn btn-primary btn-sm" id="btnTambahKelas">
+        <button class="btn btn-primary font-weight-bold" onclick="openModalAddKelas()">
           <i class="fas fa-plus mr-1"></i> Tambah Kelas
         </button>
       </div>
@@ -24,7 +31,7 @@ function initKelasModule() {
               <th>Nama Kelas</th>
               <th>Wali Kelas (Walas)</th>
               <th>Wakil Wali Kelas (Wawalas)</th>
-              <th style="width: 120px;" class="text-center">Aksi</th>
+              <th style="width: 150px;" class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody id="tbodyKelas">
@@ -79,152 +86,182 @@ function initKelasModule() {
     </div>
   `;
 
-  $('#mainContent').html(html);
+  // Event listener form submit
+  document.getElementById("kelasForm").addEventListener("submit", handleSaveKelas);
 
-  // Ambil data Guru untuk Dropdown, lalu Muat Tabel Kelas
-  loadGuruDropdownAndTable();
-
-  // Event Listener Tombol Tambah
-  $('#btnTambahKelas').on('click', function () {
-    $('#kelasModalTitle').text('Tambah Data Kelas');
-    $('#kelasForm')[0].reset();
-    $('#kelasRowIndex').val('');
-    $('#kelasModal').modal('show');
-  });
-
-  // Event Listener Form Submit (Tambah/Edit)
-  $('#kelasForm').on('submit', function (e) {
-    e.preventDefault();
-    saveDataKelas();
-  });
+  // Ambil opsi data guru dan load tabel kelas
+  await loadGuruOptions();
+  await loadKelasData();
 }
 
-// 1. Fungsi Ambil Data Guru dari tab "Biodata" untuk isi Dropdown
-function loadGuruDropdownAndTable() {
-  // Ambil Biodata dulu
-  fetchAPI('read', { sheetName: 'Biodata' }, function (response) {
-    if (response && response.status === 'success') {
-      // Ambil kolom "Nama Lengkap" dari Biodata (asumsi indeks kolom ke-1/Nama)
-      dataGuruCache = response.data.map(row => row['Nama Lengkap'] || row[1]).filter(Boolean);
+// 1. Ambil list Nama Guru dari tab "Biodata" untuk isi dropdown
+async function loadGuruOptions() {
+  try {
+    const response = await fetch(`${API_URL}?action=getBiodataData`);
+    const result = await response.json();
+    if (result.status === "sukses" && result.data) {
+      guruDropdownList = result.data.map(g => g.nama).filter(Boolean);
       populateGuruDropdowns();
     }
-    // Setelah dropdown siap, ambil data tabel Kelas
-    loadTableKelas();
-  });
+  } catch (err) {
+    console.error("Gagal memuat list guru:", err);
+  }
 }
 
-// 2. Render pilihan nama Guru ke elemen <select>
+// Isi dropdown select-guru
 function populateGuruDropdowns() {
-  let options = '<option value="">-- Pilih Guru --</option>';
-  dataGuruCache.forEach(nama => {
-    options += `<option value="${nama}">${nama}</option>`;
+  let optionsHtml = '<option value="">-- Pilih Guru --</option>';
+  guruDropdownList.forEach(nama => {
+    optionsHtml += `<option value="${nama}">${nama}</option>`;
   });
-  $('.select-guru').html(options);
+  document.querySelectorAll(".select-guru").forEach(select => {
+    select.innerHTML = optionsHtml;
+  });
 }
 
-// 3. Ambil data dari tab "Daftar Kelas & Walas"
-function loadTableKelas() {
-  fetchAPI('read', { sheetName: 'Daftar Kelas & Walas' }, function (response) {
-    if (response && response.status === 'success') {
-      renderTableKelas(response.data);
+// 2. Load Data Kelas dari backend GAS
+async function loadKelasData() {
+  const tbody = document.getElementById("tbodyKelas");
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Memuat data...</td></tr>';
+
+  try {
+    const response = await fetch(`${API_URL}?action=getKelasData`);
+    const result = await response.json();
+
+    if (result.status === "sukses") {
+      kelasRawData = result.data || [];
+      renderTableKelas(kelasRawData);
     } else {
-      $('#tbodyKelas').html('<tr><td colspan="5" class="text-center text-danger">Gagal memuat data kelas.</td></tr>');
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">Gagal memuat data: ${result.pesan}</td></tr>`;
     }
-  });
+  } catch (err) {
+    console.error("Error Load Kelas Data:", err);
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-4">Terjadi kesalahan koneksi!</td></tr>';
+  }
 }
 
-// 4. Render baris tabel
+// Render isi tabel
 function renderTableKelas(data) {
-  if (data.length === 0) {
-    $('#tbodyKelas').html('<tr><td colspan="5" class="text-center">Belum ada data kelas.</td></tr>');
+  const tbody = document.getElementById("tbodyKelas");
+  if (!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Belum ada data kelas.</td></tr>';
     return;
   }
 
-  let rows = '';
-  data.forEach((row, index) => {
-    const no = row['No'] || (index + 1);
-    const kelas = row['Kelas'] || row[1] || '';
-    const walas = row['Walas'] || row[2] || '-';
-    const wawalas = row['Wawalas'] || row[3] || '-';
-
-    rows += `
+  let html = "";
+  data.forEach((row, idx) => {
+    html += `
       <tr>
-        <td>${no}</td>
-        <td class="font-weight-bold">${kelas}</td>
-        <td>${walas}</td>
-        <td>${wawalas}</td>
+        <td>${idx + 1}</td>
+        <td class="font-weight-bold">${row.kelas || '-'}</td>
+        <td>${row.walas || '-'}</td>
+        <td>${row.wawalas || '-'}</td>
         <td class="text-center">
-          <button class="btn btn-sm btn-info btn-edit-kelas" data-index="${index}" data-row='${JSON.stringify(row)}'>
-            <i class="fas fa-edit"></i>
+          <button class="btn btn-xs btn-warning font-weight-bold mr-1" onclick="openModalEditKelas(${row.rowIndex})">
+            <i class="fas fa-edit"></i> Edit
           </button>
-          <button class="btn btn-sm btn-danger btn-delete-kelas" data-index="${index}">
-            <i class="fas fa-trash"></i>
+          <button class="btn btn-xs btn-danger font-weight-bold" onclick="confirmDeleteKelas(${row.rowIndex}, '${row.kelas}')">
+            <i class="fas fa-trash"></i> Hapus
           </button>
         </td>
       </tr>
     `;
   });
-
-  $('#tbodyKelas').html(rows);
-
-  // Event Edit
-  $('.btn-edit-kelas').on('click', function () {
-    const rowData = $(this).data('row');
-    const index = $(this).data('index');
-
-    $('#kelasModalTitle').text('Edit Data Kelas');
-    $('#kelasRowIndex').val(index);
-    $('#inputKelas').val(rowData['Kelas'] || rowData[1]);
-    $('#selectWalas').val(rowData['Walas'] || rowData[2]);
-    $('#selectWawalas').val(rowData['Wawalas'] || rowData[3]);
-
-    $('#kelasModal').modal('show');
-  });
-
-  // Event Hapus
-  $('.btn-delete-kelas').on('click', function () {
-    const index = $(this).data('index');
-    if (confirm('Yakin ingin menghapus data kelas ini?')) {
-      deleteDataKelas(index);
-    }
-  });
+  tbody.innerHTML = html;
 }
 
-// 5. Simpan Data (Tambah/Edit)
-function saveDataKelas() {
-  const rowIndex = $('#kelasRowIndex').val();
+// Buka Modal Tambah
+function openModalAddKelas() {
+  document.getElementById("kelasModalTitle").textContent = "Tambah Data Kelas";
+  document.getElementById("kelasRowIndex").value = "";
+  document.getElementById("inputKelas").value = "";
+  document.getElementById("selectWalas").value = "";
+  document.getElementById("selectWawalas").value = "";
+  $("#kelasModal").modal("show");
+}
+
+// Buka Modal Edit
+function openModalEditKelas(rowIndex) {
+  const item = kelasRawData.find(k => k.rowIndex === rowIndex);
+  if (!item) return;
+
+  document.getElementById("kelasModalTitle").textContent = "Edit Data Kelas";
+  document.getElementById("kelasRowIndex").value = item.rowIndex;
+  document.getElementById("inputKelas").value = item.kelas || "";
+  document.getElementById("selectWalas").value = item.walas || "";
+  document.getElementById("selectWawalas").value = item.wawalas || "";
+  $("#kelasModal").modal("show");
+}
+
+// Simpan Data Kelas (Tambah/Edit)
+async function handleSaveKelas(e) {
+  e.preventDefault();
+  const btnSave = document.getElementById("btnSaveKelas");
+  btnSave.disabled = true;
+  btnSave.textContent = "Menyimpan...";
+
+  const rowIndex = document.getElementById("kelasRowIndex").value;
+  const isEdit = rowIndex !== "";
+
   const payload = {
-    sheetName: 'Daftar Kelas & Walas',
-    data: {
-      'Kelas': $('#inputKelas').val(),
-      'Walas': $('#selectWalas').val(),
-      'Wawalas': $('#selectWawalas').val()
-    }
+    action: isEdit ? "updateKelas" : "addKelas",
+    rowIndex: rowIndex,
+    kelas: document.getElementById("inputKelas").value.trim(),
+    walas: document.getElementById("selectWalas").value.trim(),
+    wawalas: document.getElementById("selectWawalas").value.trim()
   };
 
-  const action = rowIndex === '' ? 'create' : 'update';
-  if (action === 'update') payload.rowIndex = parseInt(rowIndex);
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
 
-  $('#btnSaveKelas').prop('disabled', true).text('Menyimpan...');
+    const result = await response.json();
 
-  fetchAPI(action, payload, function (res) {
-    $('#btnSaveKelas').prop('disabled', false).text('Simpan');
-    if (res && res.status === 'success') {
-      $('#kelasModal').modal('hide');
-      loadTableKelas();
+    if (result.status === "sukses") {
+      $("#kelasModal").modal("hide");
+      alert(result.pesan);
+      await loadKelasData();
     } else {
-      alert('Gagal menyimpan data: ' + (res.message || 'Terjadi kesalahan'));
+      alert("Gagal menyimpan: " + result.pesan);
     }
-  });
+  } catch (err) {
+    console.error("Error Save Kelas:", err);
+    alert("Terjadi kesalahan koneksi saat menyimpan!");
+  } finally {
+    btnSave.disabled = false;
+    btnSave.textContent = "Simpan";
+  }
 }
 
-// 6. Hapus Data
-function deleteDataKelas(rowIndex) {
-  fetchAPI('delete', { sheetName: 'Daftar Kelas & Walas', rowIndex: rowIndex }, function (res) {
-    if (res && res.status === 'success') {
-      loadTableKelas();
+// Konfirmasi Hapus Kelas
+async function confirmDeleteKelas(rowIndex, namaKelas) {
+  if (!confirm(`Apakah Anda yakin ingin menghapus kelas "${namaKelas}"?`)) return;
+
+  try {
+    const payload = {
+      action: "deleteKelas",
+      rowIndex: rowIndex
+    };
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (result.status === "sukses") {
+      alert(result.pesan);
+      await loadKelasData();
     } else {
-      alert('Gagal menghapus data.');
+      alert("Gagal menghapus: " + result.pesan);
     }
-  });
+  } catch (err) {
+    console.error("Error Delete Kelas:", err);
+    alert("Terjadi kesalahan koneksi saat menghapus!");
+  }
 }
