@@ -177,6 +177,7 @@
 <!-- Modul Aplikasi (Folder modules) -->
 <script src="modules/username.js"></script>
 <script src="modules/biodata.js"></script>
+<script src="modules/kelas.js"></script>
 
 <!-- Logika Navigasi Dashboard -->
 <script>
@@ -218,7 +219,14 @@
       initBiodataModule();
     });
 
-    // 7. Tombol Logout
+    // 7. Navigasi Menu Kelas & Walas
+$('#menuKelas').on('click', function (e) {
+  e.preventDefault();
+  setActiveMenu($(this));
+  initKelasModule(); // Panggil modul kelas
+});
+
+    // 8. Tombol Logout
     $('#btnLogout').on('click', function (e) {
       e.preventDefault();
       if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
