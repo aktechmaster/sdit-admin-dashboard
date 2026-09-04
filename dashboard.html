@@ -83,35 +83,40 @@
             </a>
           </li>
 
-          <li class="nav-header">MODUL UTAMA (CRUD)</li>
-          
-          <li class="nav-item">
-            <a href="#" class="nav-link" id="menuUsername">
-              <i class="nav-icon fas fa-users-cog"></i>
-              <p>Manajemen Username</p>
-            </a>
-          </li>
+          <!-- MODUL UTAMA (CRUD) -->
+<li class="nav-header">MODUL UTAMA (CRUD)</li>
 
-          <li class="nav-item">
-            <a href="#" class="nav-link" id="menuBiodata">
-              <i class="nav-icon fas fa-user-tie"></i>
-              <p>Daftar Guru & Karyawan</p>
-            </a>
-          </li>
+<!-- 1. Manajemen Username -->
+<li class="nav-item">
+  <a href="javascript:void(0)" class="nav-link" onclick="initUsernameModule()">
+    <i class="nav-icon fas fa-users-cog"></i>
+    <p>Manajemen Username</p>
+  </a>
+</li>
 
-          <li class="nav-item">
-            <a href="#" class="nav-link" onclick="initSiswaModule()">
-              <i class="nav-icon fas fa-user-graduate"></i>
-              <p>Master Data Siswa</p>
-            </a>
-          </li>
+<!-- 2. Daftar Guru & Karyawan -->
+<li class="nav-item">
+  <a href="javascript:void(0)" class="nav-link" onclick="initGuruModule()">
+    <i class="nav-icon fas fa-user-tie"></i>
+    <p>Daftar Guru & Karyawan</p>
+  </a>
+</li>
 
-          <li class="nav-item">
-            <a href="#" class="nav-link" id="menuSiswa">
-              <i class="nav-icon fas fa-user-graduate"></i>
-              <p>Master Data Siswa</p>
-            </a>
-          </li>
+<!-- 3. Daftar Kelas & Walas -->
+<li class="nav-item">
+  <a href="javascript:void(0)" class="nav-link" onclick="initKelasModule()">
+    <i class="nav-icon fas fa-chalkboard-teacher"></i>
+    <p>Daftar Kelas & Walas</p>
+  </a>
+</li>
+
+<!-- 4. Master Data Siswa -->
+<li class="nav-item">
+  <a href="javascript:void(0)" class="nav-link" onclick="initSiswaModule()">
+    <i class="nav-icon fas fa-user-graduate"></i>
+    <p>Master Data Siswa</p>
+  </a>
+</li>
 
         </ul>
       </nav>
