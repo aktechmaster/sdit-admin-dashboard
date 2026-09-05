@@ -1,17 +1,31 @@
 /**
  * Modul Jurnal Harian - SDIT Al-Kautsar
- * Menampilkan rincian capaian jurnal harian per guru
+ * Menampilkan rincian capaian jurnal harian per guru dengan Freeze Header
  */
 
 async function initJurnalHarianModule() {
   // Update Judul Halaman sesuai ID di dashboard.html
   $('#pageTitle').text('Rincian Jurnal Umum & T2Q Harian');
 
-  // Selektor disesuaikan dengan id="mainContent" di dashboard.html
   const contentArea = $('#mainContent');
   
-  // Render Struktur Card & Tabel
+  // Render Struktur Card, Style Sticky Header, & Tabel
   contentArea.html(`
+    <style>
+      .table-freeze-container {
+        max-height: 68vh;
+        overflow-y: auto;
+        position: relative;
+      }
+      .table-freeze-container thead th {
+        position: sticky;
+        top: 0;
+        background-color: #e9ecef !important;
+        z-index: 10;
+        box-shadow: inset 0 -2px 0 #dee2e6;
+      }
+    </style>
+
     <div class="card card-outline card-info">
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-calendar-day mr-2"></i>Data Jurnal Harian Guru</h3>
@@ -21,13 +35,15 @@ async function initJurnalHarianModule() {
           </button>
         </div>
       </div>
-      <div class="card-body">
-        <div id="tableSpinner" class="text-center my-4">
+      <div class="card-body p-0">
+        <div id="tableSpinner" class="text-center my-4 p-3">
           <i class="fas fa-spinner fa-spin fa-2x text-info"></i>
           <p class="mt-2 text-muted">Memuat data Jurnal Harian...</p>
         </div>
-        <div class="table-responsive">
-          <table id="tableJurnalHarian" class="table table-bordered table-striped table-hover" style="width:100%">
+        
+        <!-- Pembungkus Tabel dengan Fitur Freeze Header -->
+        <div class="table-responsive table-freeze-container">
+          <table id="tableJurnalHarian" class="table table-bordered table-striped table-hover mb-0" style="width:100%">
             <thead class="thead-light">
               <tr>
                 <th style="width: 50px" class="text-center">No</th>
@@ -55,18 +71,18 @@ async function initJurnalHarianModule() {
     if (result.status === 'success' && Array.isArray(result.data)) {
       renderTableJurnalHarian(result.data);
     } else {
-      $('#tbodyJurnalHarian').html(`<tr><td colspan="5" class="text-center text-muted">Gagal memuat data atau sheet kosong.</td></tr>`);
+      $('#tbodyJurnalHarian').html(`<tr><td colspan="5" class="text-center text-muted p-3">Gagal memuat data atau sheet kosong.</td></tr>`);
     }
   } catch (error) {
     console.error('Error Jurnal Harian:', error);
     $('#tableSpinner').addClass('d-none');
-    $('#tbodyJurnalHarian').html(`<tr><td colspan="5" class="text-center text-danger">Terjadi kesalahan saat terhubung ke server.</td></tr>`);
+    $('#tbodyJurnalHarian').html(`<tr><td colspan="5" class="text-center text-danger p-3">Terjadi kesalahan saat terhubung ke server.</td></tr>`);
   }
 }
 
 function renderTableJurnalHarian(rawData) {
   if (rawData.length <= 1) {
-    $('#tbodyJurnalHarian').html(`<tr><td colspan="5" class="text-center text-muted">Tidak ada data ditemukan.</td></tr>`);
+    $('#tbodyJurnalHarian').html(`<tr><td colspan="5" class="text-center text-muted p-3">Tidak ada data ditemukan.</td></tr>`);
     return;
   }
 
@@ -82,7 +98,6 @@ function renderTableJurnalHarian(rawData) {
     const realisasi = row[3] !== undefined ? row[3] : '0';
     const selisih = String(row[4] || '').trim();
 
-    // Mengabaikan baris rekap/total di bagian bawah
     if (nama.toLowerCase().includes('total') || nama.toLowerCase().includes('rerata')) {
       continue;
     }
@@ -111,19 +126,17 @@ function renderTableJurnalHarian(rawData) {
 
   $('#tbodyJurnalHarian').html(rowsHtml);
 
-  // Inisialisasi DataTables jika pustaka tersedia
   if ($.fn.DataTable) {
     if ($.fn.DataTable.isDataTable('#tableJurnalHarian')) {
       $('#tableJurnalHarian').DataTable().destroy();
     }
     $('#tableJurnalHarian').DataTable({
       responsive: true,
-      pageLength: 25,
+      paging: false,       // Dimatikan agar scroll internal aktif sepenuhnya
+      info: false,         // Menghilangkan ringkasan info halaman bawah
+      searching: true,     // Pencarian tetap aktif
       language: {
-        search: "Cari Guru:",
-        lengthMenu: "Tampilkan _MENU_ baris",
-        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ guru",
-        paginate: { first: "Awal", last: "Akhir", next: "▶", previous: "◀" }
+        search: "Cari Guru:"
       }
     });
   }
