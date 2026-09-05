@@ -80,15 +80,14 @@ function calculateAbsensiToday(rawData) {
 // Fungsi utama memuat seluruh indikator persentase
 async function loadDashboardStats() {
   const config = [
-    { sheet: 'Jurnal Harian', elementId: 'statJurnalHarian', col: 3, startRow: 1, type: 'avg' }, // Kolom D
-    { sheet: 'Jurnal fix', elementId: 'statJurnalFix', col: 4, startRow: 1, type: 'avg' },     // Kolom E
-    { sheet: 'Jurnal', elementId: 'statJurnal', col: 40, startRow: 2, type: 'avg' },           // Kolom AO
-    { sheet: 'Jurnal fix T2Q', elementId: 'statJurnalFixT2q', col: 4, startRow: 1, type: 'avg' }, // Kolom E
-    { sheet: 'Rekap Kelas', elementId: 'statRekapKelas', col: 4, startRow: 1, type: 'avg' },     // Kolom E
-    { sheet: 'Absensi', elementId: 'statAbsensi', type: 'absensi' },                           // Logika Absensi Today
-    { sheet: 'Jurnal T2Q', elementId: 'statJurnalT2q', col: 40, startRow: 2, type: 'avg' }       // Kolom AO
+    { sheet: 'Jurnal Harian', elementId: 'statJurnalHarian', col: 3, startRow: 1, type: 'avg' },
+    { sheet: 'Jurnal fix', elementId: 'statJurnalFix', col: 4, startRow: 1, type: 'avg' },
+    { sheet: 'Jurnal', elementId: 'statJurnal', col: 40, startRow: 2, type: 'avg' },
+    { sheet: 'Jurnal fix T2Q', elementId: 'statJurnalFixT2q', col: 4, startRow: 1, type: 'avg' },
+    { sheet: 'Jurnal T2Q', elementId: 'statJurnalT2q', col: 40, startRow: 2, type: 'avg' },    // Dipindah ke baris ini
+    { sheet: 'Rekap Kelas', elementId: 'statRekapKelas', col: 4, startRow: 1, type: 'avg' },
+    { sheet: 'Absensi', elementId: 'statAbsensi', type: 'absensi' }
   ];
-
   for (const item of config) {
     try {
       $(`#${item.elementId}`).html('<i class="fas fa-spinner fa-spin fa-xs"></i>');
