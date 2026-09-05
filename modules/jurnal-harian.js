@@ -4,11 +4,11 @@
  */
 
 async function initJurnalHarianModule() {
-  // Update Title & Breadcrumb
-  $('#page-title').text('Rincian Jurnal Harian');
-  $('#breadcrumb-title').text('Jurnal Harian');
+  // Update Judul Halaman sesuai ID di dashboard.html
+  $('#pageTitle').text('Rincian Jurnal Umum & T2Q Harian');
 
-  const contentArea = $('#main-content');
+  // Selektor disesuaikan dengan id="mainContent" di dashboard.html
+  const contentArea = $('#mainContent');
   
   // Render Struktur Card & Tabel
   contentArea.html(`
@@ -27,7 +27,7 @@ async function initJurnalHarianModule() {
           <p class="mt-2 text-muted">Memuat data Jurnal Harian...</p>
         </div>
         <div class="table-responsive">
-          <table id="tableJurnalHarian" class="table table-bordered table-striped table-hover style="width:100%">
+          <table id="tableJurnalHarian" class="table table-bordered table-striped table-hover" style="width:100%">
             <thead class="thead-light">
               <tr>
                 <th style="width: 50px" class="text-center">No</th>
@@ -72,7 +72,6 @@ function renderTableJurnalHarian(rawData) {
 
   let rowsHtml = '';
 
-  // Iterasi data mulai dari baris indeks 1 (mengabaikan header)
   for (let i = 1; i < rawData.length; i++) {
     const row = rawData[i];
     if (!row || row.length < 2) continue;
@@ -83,12 +82,11 @@ function renderTableJurnalHarian(rawData) {
     const realisasi = row[3] !== undefined ? row[3] : '0';
     const selisih = String(row[4] || '').trim();
 
-    // Abaikan jika bertemu baris rekap total/rerata
+    // Mengabaikan baris rekap/total di bagian bawah
     if (nama.toLowerCase().includes('total') || nama.toLowerCase().includes('rerata')) {
       continue;
     }
 
-    // Format badge untuk kolom Selisih
     let badgeSelisih = '';
     const selisihUpper = selisih.toUpperCase();
 
