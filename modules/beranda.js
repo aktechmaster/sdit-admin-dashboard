@@ -1,47 +1,95 @@
 /**
  * Modul Beranda - Dashboard SDIT Al-Kautsar
- * Menangani kalkulasi & tampilan rata-rata persentase indikator
+ * Perhitungan Rata-Rata Persentase Dinamis
  */
 
-function parsePercentageValue(val) {
-  if (val === null || val === undefined || val === '') return 0;
-  
-  if (typeof val === 'number') {
-    return val <= 1 ? val * 100 : val;
+// Utility membersihkan & mengubah teks persentase menjadi angka
+function parsePercentage(val) {
+  if (val === null || val === undefined || val === '') return null;
+  let str = String(val).replace('%', '').replace(',', '.').trim();
+  let num = parseFloat(str);
+  if (isNaN(num)) return null;
+  if (num <= 1 && num > 0 && str.includes('.')) {
+    num = num * 100;
   }
-  
-  if (typeof val === 'string') {
-    let cleanStr = val.replace('%', '').replace(',', '.').trim();
-    let num = parseFloat(cleanStr);
-    if (isNaN(num)) return 0;
-    return num <= 1 && cleanStr.includes('.') && !val.includes('%') ? num * 100 : num;
-  }
-  
-  return 0;
+  return num;
 }
 
-function calculateAverage(arr) {
-  if (!arr || arr.length === 0) return 0;
-  const validValues = arr.map(v => parsePercentageValue(v)).filter(v => !isNaN(v) && v > 0);
-  if (validValues.length === 0) return 0;
-  
-  const sum = validValues.reduce((acc, curr) => acc + curr, 0);
-  return (sum / validValues.length).toFixed(2);
+// Menghitung rata-rata nilai kolom secara dinamis
+function calculateColumnAverage(rawData, colIndex, startRowIndex) {
+  if (!rawData || rawData.length <= startRowIndex) return "0%";
+
+  let sum = 0;
+  let count = 0;
+
+  for (let i = startRowIndex; i < rawData.length; i++) {
+    const row = rawData[i];
+    if (!row || row.length <= colIndex) continue;
+
+    const firstColVal = String(row[0] || '').toLowerCase();
+    const secondColVal = String(row[1] || '').toLowerCase();
+
+    // Hentikan iterasi saat menyentuh baris Total / Rerata di paling bawah
+    if (firstColVal.includes('total') || firstColVal.includes('rerata') || 
+        secondColVal.includes('total') || secondColVal.includes('rerata')) {
+      break;
+    }
+
+    const valStr = row[colIndex];
+    const num = parsePercentage(valStr);
+
+    if (num !== null && !isNaN(num)) {
+      sum += num;
+      count++;
+    }
+  }
+
+  if (count === 0) return "0%";
+  return (sum / count).toFixed(2) + "%";
 }
 
+// Menghitung persentase kehadiran guru hari ini dari sheet Absensi
+function calculateAbsensiToday(rawData) {
+  if (!rawData || rawData.length <= 1) return "0%";
+
+  let totalGuru = 0;
+  let tidakHadirToday = 0;
+
+  for (let i = 1; i < rawData.length; i++) {
+    const row = rawData[i];
+    if (!row || row.length < 4) continue;
+
+    const namaGuru = String(row[1] || '').trim(); // Kolom B (Nama Lengkap)
+    const todayVal = String(row[3] || '').trim(); // Kolom D (Today)
+
+    if (namaGuru !== '' && !namaGuru.toLowerCase().includes('total') && !namaGuru.toLowerCase().includes('rerata')) {
+      totalGuru++;
+      const absentNum = parseInt(todayVal) || 0;
+      if (absentNum > 0) {
+        tidakHadirToday++;
+      }
+    }
+  }
+
+  if (totalGuru === 0) return "0%";
+  const hadirCount = totalGuru - tidakHadirToday;
+  const percentage = (hadirCount / totalGuru) * 100;
+  return percentage.toFixed(2) + "%";
+}
+
+// Fungsi utama memuat seluruh indikator persentase
 async function loadDashboardStats() {
-  // Konfigurasi target sheet dan kata kunci header persentase
-  const targetSheets = [
-    { sheet: 'Jurnal Harian', elementId: 'statJurnalHarian', keyword: 'PERSENTASE' },
-    { sheet: 'Jurnal fix', elementId: 'statJurnalFix', keyword: 'PERSENTASE' },
-    { sheet: 'Jurnal', elementId: 'statJurnal', keyword: 'PERSENTASE' },
-    { sheet: 'Jurnal fix T2Q', elementId: 'statJurnalFixT2q', keyword: 'PERSENTASE' },
-    { sheet: 'Rekap Kelas', elementId: 'statRekapKelas', keyword: 'RATA-RATA' },
-    { sheet: 'Absensi', elementId: 'statAbsensi', keyword: 'PERSENTASE' },
-    { sheet: 'Jurnal T2Q', elementId: 'statJurnalT2q', keyword: 'PERSENTASE' }
+  const config = [
+    { sheet: 'Jurnal Harian', elementId: 'statJurnalHarian', col: 3, startRow: 1, type: 'avg' }, // Kolom D
+    { sheet: 'Jurnal fix', elementId: 'statJurnalFix', col: 4, startRow: 1, type: 'avg' },     // Kolom E
+    { sheet: 'Jurnal', elementId: 'statJurnal', col: 40, startRow: 2, type: 'avg' },           // Kolom AO
+    { sheet: 'Jurnal fix T2Q', elementId: 'statJurnalFixT2q', col: 4, startRow: 1, type: 'avg' }, // Kolom E
+    { sheet: 'Rekap Kelas', elementId: 'statRekapKelas', col: 4, startRow: 1, type: 'avg' },     // Kolom E
+    { sheet: 'Absensi', elementId: 'statAbsensi', type: 'absensi' },                           // Logika Absensi Today
+    { sheet: 'Jurnal T2Q', elementId: 'statJurnalT2q', col: 40, startRow: 2, type: 'avg' }       // Kolom AO
   ];
 
-  for (const item of targetSheets) {
+  for (const item of config) {
     try {
       $(`#${item.elementId}`).html('<i class="fas fa-spinner fa-spin fa-xs"></i>');
 
@@ -49,23 +97,19 @@ async function loadDashboardStats() {
       const response = await fetch(url);
       const result = await response.json();
 
-      console.log(`[DEBUG Beranda] Response ${item.sheet}:`, result);
-
-      if (result.status === 'success' && Array.isArray(result.data) && result.data.length > 0) {
-        // Cari nama kolom/key yang mengandung kata kunci (misal "RATA-RATA" atau "PERSENTASE")
-        const sampleRow = result.data[0];
-        const keys = Object.keys(sampleRow);
-        const targetKey = keys.find(k => k.toUpperCase().includes(item.keyword)) || keys[keys.length - 1];
-
-        const percentageList = result.data.map(row => row[targetKey]);
-        const avg = calculateAverage(percentageList);
-
-        $(`#${item.elementId}`).text(`${avg}%`);
+      if (result.status === 'success' && Array.isArray(result.data)) {
+        let resultText = "0%";
+        if (item.type === 'avg') {
+          resultText = calculateColumnAverage(result.data, item.col, item.startRow);
+        } else if (item.type === 'absensi') {
+          resultText = calculateAbsensiToday(result.data);
+        }
+        $(`#${item.elementId}`).text(resultText);
       } else {
         $(`#${item.elementId}`).text('0%');
       }
-    } catch (error) {
-      console.error(`[ERROR Beranda] Gagal memuat ${item.sheet}:`, error);
+    } catch (err) {
+      console.error(`Gagal memuat statistik ${item.sheet}:`, err);
       $(`#${item.elementId}`).text('0%');
     }
   }
