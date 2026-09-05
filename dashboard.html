@@ -362,7 +362,6 @@
 <script src="modules/siswa.js"></script>
 <script src="modules/beranda.js"></script>
 
-<!-- Logika Navigasi Dashboard -->
 <script>
   $(document).ready(function () {
     // 1. Cek Autentikasi
@@ -375,19 +374,22 @@
       $('#userDisplayRole').text(user.jabatan || 'Pengguna');
     }
 
-    // 3. Reset Status Menu Active
+    // 3. Panggil Fungsi Statistik Beranda
+    loadDashboardStats();
+
+    // 4. Reset Status Menu Active
     $('.nav-sidebar .nav-link').on('click', function () {
       $('.nav-sidebar .nav-link').removeClass('active');
       $(this).addClass('active');
     });
 
-    // 4. Navigasi Menu Beranda
+    // 5. Navigasi Menu Beranda
     $('#menuBeranda').on('click', function (e) {
       e.preventDefault();
       location.reload();
     });
 
-    // 5. Tombol Logout
+    // 6. Tombol Logout
     $('#btnLogout').on('click', function (e) {
       e.preventDefault();
       if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
