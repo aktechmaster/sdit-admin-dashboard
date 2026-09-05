@@ -3,17 +3,14 @@
  * Menangani kalkulasi & tampilan rata-rata persentase indikator
  */
 
-// Helper untuk membersihkan & merubah nilai persentase (string/angka) menjadi Float
 function parsePercentageValue(val) {
   if (val === null || val === undefined || val === '') return 0;
   
   if (typeof val === 'number') {
-    // Jika nilai desimal (misal 0.9087 -> 90.87)
     return val <= 1 ? val * 100 : val;
   }
   
   if (typeof val === 'string') {
-    // Membersihkan simbol %, spasi, dan mengubah koma menjadi titik
     let cleanStr = val.replace('%', '').replace(',', '.').trim();
     let num = parseFloat(cleanStr);
     if (isNaN(num)) return 0;
@@ -23,7 +20,6 @@ function parsePercentageValue(val) {
   return 0;
 }
 
-// Helper menghitung rata-rata dari array angka
 function calculateAverage(arr) {
   if (!arr || arr.length === 0) return 0;
   const validValues = arr.map(v => parsePercentageValue(v)).filter(v => !isNaN(v) && v > 0);
@@ -33,43 +29,44 @@ function calculateAverage(arr) {
   return (sum / validValues.length).toFixed(2);
 }
 
-// Fungsi utama memuat seluruh indikator persentase Beranda
 async function loadDashboardStats() {
+  // Konfigurasi target sheet dan kata kunci header persentase
   const targetSheets = [
-    { sheet: 'Jurnal Harian', elementId: 'statJurnalHarian', colIndex: 3 }, // Sesuaikan indeks kolom persentase
-    { sheet: 'Jurnal fix', elementId: 'statJurnalFix', colIndex: 3 },
-    { sheet: 'Jurnal', elementId: 'statJurnal', colIndex: 3 },
-    { sheet: 'Jurnal fix T2Q', elementId: 'statJurnalFixT2q', colIndex: 3 },
-    { sheet: 'Rekap Kelas', elementId: 'statRekapKelas', colIndex: 4 }, // Kolom RATA-RATA KEHADIRAN KELAS
-    { sheet: 'Absensi', elementId: 'statAbsensi', colIndex: 3 },
-    { sheet: 'Jurnal T2Q', elementId: 'statJurnalT2q', colIndex: 3 }
+    { sheet: 'Jurnal Harian', elementId: 'statJurnalHarian', keyword: 'PERSENTASE' },
+    { sheet: 'Jurnal fix', elementId: 'statJurnalFix', keyword: 'PERSENTASE' },
+    { sheet: 'Jurnal', elementId: 'statJurnal', keyword: 'PERSENTASE' },
+    { sheet: 'Jurnal fix T2Q', elementId: 'statJurnalFixT2q', keyword: 'PERSENTASE' },
+    { sheet: 'Rekap Kelas', elementId: 'statRekapKelas', keyword: 'RATA-RATA' },
+    { sheet: 'Absensi', elementId: 'statAbsensi', keyword: 'PERSENTASE' },
+    { sheet: 'Jurnal T2Q', elementId: 'statJurnalT2q', keyword: 'PERSENTASE' }
   ];
 
   for (const item of targetSheets) {
     try {
-      // Tampilkan indikator loading sederhana
       $(`#${item.elementId}`).html('<i class="fas fa-spinner fa-spin fa-xs"></i>');
 
-      // Ambil data dari GAS via fetch
-      const response = await fetch(`${API_URL}?action=read&sheet=${encodeURIComponent(item.sheet)}`);
+      const url = `${API_URL}?action=read&sheet=${encodeURIComponent(item.sheet)}`;
+      const response = await fetch(url);
       const result = await response.json();
 
-      if (result.status === 'success' && Array.isArray(result.data)) {
-        // Ambil nilai dari kolom persentase per baris
-        const percentageList = result.data.map(row => {
-          const keys = Object.keys(row);
-          // Ambil berdasarkan indeks kolom atau nama properti
-          return row[keys[item.colIndex]] || Object.values(row)[item.colIndex];
-        });
+      console.log(`[DEBUG Beranda] Response ${item.sheet}:`, result);
 
+      if (result.status === 'success' && Array.isArray(result.data) && result.data.length > 0) {
+        // Cari nama kolom/key yang mengandung kata kunci (misal "RATA-RATA" atau "PERSENTASE")
+        const sampleRow = result.data[0];
+        const keys = Object.keys(sampleRow);
+        const targetKey = keys.find(k => k.toUpperCase().includes(item.keyword)) || keys[keys.length - 1];
+
+        const percentageList = result.data.map(row => row[targetKey]);
         const avg = calculateAverage(percentageList);
+
         $(`#${item.elementId}`).text(`${avg}%`);
       } else {
         $(`#${item.elementId}`).text('0%');
       }
     } catch (error) {
-      console.error(`Gagal memuat statistik ${item.sheet}:`, error);
-      $(`#${item.elementId}`).text('Err');
+      console.error(`[ERROR Beranda] Gagal memuat ${item.sheet}:`, error);
+      $(`#${item.elementId}`).text('0%');
     }
   }
 }
