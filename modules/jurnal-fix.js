@@ -1,6 +1,6 @@
 /**
  * Modul Jurnal Bulanan - SDIT Al-Kautsar
- * Menampilkan rincian capaian jurnal umum bulanan per guru dengan Freeze Header
+ * Menampilkan rincian capaian jurnal umum bulanan per guru dengan Freeze Header & Dynamic Color Scale
  */
 
 async function initJurnalFixModule() {
@@ -39,7 +39,6 @@ async function initJurnalFixModule() {
           <p class="mt-2 text-muted">Memuat data Jurnal Bulanan...</p>
         </div>
         
-        <!-- Wadah Tabel dengan Freeze Header -->
         <div class="table-responsive table-freeze-container">
           <table id="tableJurnalFix" class="table table-bordered table-striped table-hover mb-0" style="width:100%">
             <thead class="thead-light">
@@ -96,20 +95,12 @@ function renderTableJurnalFix(rawData) {
     const jumlahDiisi = row[3] !== undefined ? row[3] : '0';
     let persenVal = row[4] !== undefined ? row[4] : '0';
 
-    // Abaikan jika baris nama kosong atau merupakan rekap/tanggal/bulan di bagian bawah
     if (!nama || nama.toLowerCase().includes('total') || nama.toLowerCase().includes('rerata') || nama.toLowerCase().includes('september')) {
       continue;
     }
 
-    // Format tampilan persentase
-    let formattedPersen = persenVal;
-    if (typeof persenVal === 'number') {
-      formattedPersen = (persenVal <= 1 && persenVal > 0) 
-        ? (persenVal * 100).toFixed(2) + '%' 
-        : persenVal.toFixed(2) + '%';
-    } else {
-      formattedPersen = String(persenVal).trim();
-    }
+    // Generate badge persentase dengan gradasi warna otomatis
+    const badgePersen = generatePercentBadge(persenVal);
 
     rowsHtml += `
       <tr>
@@ -117,7 +108,7 @@ function renderTableJurnalFix(rawData) {
         <td class="font-weight-bold">${nama}</td>
         <td class="text-center">${jumlahPerbulan}</td>
         <td class="text-center">${jumlahDiisi}</td>
-        <td class="text-center"><span class="badge badge-info px-3 py-1">${formattedPersen}</span></td>
+        <td class="text-center">${badgePersen}</td>
       </tr>
     `;
   }
@@ -138,4 +129,34 @@ function renderTableJurnalFix(rawData) {
       }
     });
   }
+}
+
+/**
+ * Fungsi Pembantu: Menghitung & Mengembalikan Badge Gradasi Warna (Merah -> Kuning -> Hijau)
+ */
+function generatePercentBadge(persenVal) {
+  let percentNum = 0;
+
+  if (typeof persenVal === 'number') {
+    percentNum = persenVal <= 1 && persenVal > 0 ? persenVal * 100 : persenVal;
+  } else if (persenVal) {
+    let cleanStr = String(persenVal).replace('%', '').replace(',', '.').trim();
+    percentNum = parseFloat(cleanStr) || 0;
+    if (percentNum <= 1 && percentNum > 0 && !String(persenVal).includes('%')) {
+      percentNum = percentNum * 100;
+    }
+  }
+
+  // Kunci batas rentang nilai antara 0% sampai 100%
+  let clampedNum = Math.min(Math.max(percentNum, 0), 100);
+
+  // Kalkulasi Sudut Warna HSL (0 = Merah, 60 = Kuning, 120 = Hijau)
+  const hue = Math.round(clampedNum * 1.2);
+
+  // Kombinasi warna latar pastel dan teks yang kontras
+  const bgColor = `hsl(${hue}, 85%, 88%)`;
+  const textColor = `hsl(${hue}, 100%, 20%)`;
+  const borderColor = `hsl(${hue}, 65%, 45%)`;
+
+  return `<span class="badge px-3 py-1 font-weight-bold" style="background-color: ${bgColor}; color: ${textColor}; border: 1px solid ${borderColor}; font-size: 0.88rem;">${percentNum.toFixed(2)}%</span>`;
 }
