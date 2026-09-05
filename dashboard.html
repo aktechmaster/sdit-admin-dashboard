@@ -86,39 +86,106 @@
           </li>
 
           <!-- MODUL UTAMA (CRUD) -->
-<li class="nav-header">MODUL UTAMA (CRUD)</li>
+          <li class="nav-header">MODUL UTAMA (CRUD)</li>
 
-<!-- 1. Manajemen Username -->
-<li class="nav-item">
-  <a href="javascript:void(0)" class="nav-link" onclick="initUsernameModule()">
-    <i class="nav-icon fas fa-users-cog"></i>
-    <p>Manajemen Username</p>
-  </a>
-</li>
+          <!-- 1. Manajemen Username -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initUsernameModule()">
+              <i class="nav-icon fas fa-users-cog"></i>
+              <p>Manajemen Username</p>
+            </a>
+          </li>
 
-<!-- 2. Daftar Guru & Karyawan -->
-<li class="nav-item">
-  <a href="javascript:void(0)" class="nav-link" onclick="initGuruModule()">
-    <i class="nav-icon fas fa-user-tie"></i>
-    <p>Daftar Guru & Karyawan</p>
-  </a>
-</li>
+          <!-- 2. Daftar Guru & Karyawan -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initGuruModule()">
+              <i class="nav-icon fas fa-user-tie"></i>
+              <p>Daftar Guru & Karyawan</p>
+            </a>
+          </li>
 
-<!-- 3. Daftar Kelas & Walas -->
-<li class="nav-item">
-  <a href="javascript:void(0)" class="nav-link" onclick="initKelasModule()">
-    <i class="nav-icon fas fa-chalkboard-teacher"></i>
-    <p>Daftar Kelas & Walas</p>
-  </a>
-</li>
+          <!-- 3. Daftar Kelas & Walas -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initKelasModule()">
+              <i class="nav-icon fas fa-chalkboard-teacher"></i>
+              <p>Daftar Kelas & Walas</p>
+            </a>
+          </li>
 
-<!-- 4. Master Data Siswa -->
-<li class="nav-item">
-  <a href="javascript:void(0)" class="nav-link" onclick="initSiswaModule()">
-    <i class="nav-icon fas fa-user-graduate"></i>
-    <p>Master Data Siswa</p>
-  </a>
-</li>
+          <!-- 4. Master Data Siswa -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initSiswaModule()">
+              <i class="nav-icon fas fa-user-graduate"></i>
+              <p>Master Data Siswa</p>
+            </a>
+          </li>
+
+          <!-- RINCIAN JURNAL & REKAP -->
+          <li class="nav-header">RINCIAN DATA</li>
+
+          <!-- 1. Jurnal Harian -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initJurnalHarianModule()">
+              <i class="nav-icon fas fa-calendar-day"></i>
+              <p>Jurnal Harian</p>
+            </a>
+          </li>
+
+          <!-- 2. Jurnal Bulanan -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initJurnalFixModule()">
+              <i class="nav-icon fas fa-calendar-alt"></i>
+              <p>Jurnal Bulanan</p>
+            </a>
+          </li>
+
+          <!-- 3. Jurnal Tahunan -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initJurnalModule()">
+              <i class="nav-icon fas fa-book"></i>
+              <p>Jurnal Tahunan</p>
+            </a>
+          </li>
+
+          <!-- 4. Jurnal Fix T2Q -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initJurnalFixT2qModule()">
+              <i class="nav-icon fas fa-quran"></i>
+              <p>Jurnal Fix T2Q</p>
+            </a>
+          </li>
+
+          <!-- 5. Rekap Kelas -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initRekapKelasModule()">
+              <i class="nav-icon fas fa-clipboard-list"></i>
+              <p>Rekap Kelas</p>
+            </a>
+          </li>
+
+          <!-- 6. Ketidakhadiran -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initAbsensiModule()">
+              <i class="nav-icon fas fa-user-clock"></i>
+              <p>Ketidakhadiran</p>
+            </a>
+          </li>
+
+          <!-- 7. Piket -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initPiketModule()">
+              <i class="nav-icon fas fa-user-shield"></i>
+              <p>Piket</p>
+            </a>
+          </li>
+
+          <!-- 8. Jurnal T2Q -->
+          <li class="nav-item">
+            <a href="javascript:void(0)" class="nav-link" onclick="initJurnalT2qModule()">
+              <i class="nav-icon fas fa-book-open"></i>
+              <p>Jurnal T2Q</p>
+            </a>
+          </li>
 
         </ul>
       </nav>
@@ -142,16 +209,123 @@
     <section class="content">
       <div class="container-fluid" id="mainContent">
         
-        <!-- Kartu Selamat Datang / Ringkasan Awal -->
+        <!-- Kartu Selamat Datang -->
         <div class="row">
           <div class="col-12">
-            <div class="card card-primary card-outline">
+            <div class="card card-primary card-outline mb-4">
               <div class="card-body">
                 <h5 class="card-title font-weight-bold">Selamat Datang di Sistem Informasi SDIT Al-Kautsar</h5>
                 <p class="card-text mt-2">
                   Sistem ini terhubung langsung secara terisolasi ke database Google Spreadsheet SDIT Al-Kautsar. Silakan gunakan menu di sebelah kiri untuk mengelola data.
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Widget Rata-Rata Persentase Beranda -->
+        <h5 class="mb-3 font-weight-bold text-dark"><i class="fas fa-chart-line mr-2"></i>Rata-Rata Persentase Capaian</h5>
+        
+        <!-- Row 1: 4 Widget Utama -->
+        <div class="row">
+          <!-- 1. Jurnal Harian -->
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3 id="statJurnalHarian">--%</h3>
+                <p>Jurnal Harian</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-calendar-day"></i>
+              </div>
+              <a href="javascript:void(0)" onclick="initJurnalHarianModule()" class="small-box-footer">Lihat Rincian <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+
+          <!-- 2. Jurnal Bulanan -->
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3 id="statJurnalFix">--%</h3>
+                <p>Jurnal Bulanan</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <a href="javascript:void(0)" onclick="initJurnalFixModule()" class="small-box-footer">Lihat Rincian <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+
+          <!-- 3. Jurnal Tahunan -->
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3 id="statJurnal">--%</h3>
+                <p>Jurnal Tahunan</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-book"></i>
+              </div>
+              <a href="javascript:void(0)" onclick="initJurnalModule()" class="small-box-footer">Lihat Rincian <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+
+          <!-- 4. Jurnal Bulanan T2Q -->
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-danger">
+              <div class="inner">
+                <h3 id="statJurnalFixT2q">--%</h3>
+                <p>Jurnal Bulanan T2Q</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-quran"></i>
+              </div>
+              <a href="javascript:void(0)" onclick="initJurnalFixT2qModule()" class="small-box-footer">Lihat Rincian <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: 3 Widget Tambahan -->
+        <div class="row">
+          <!-- 5. Rekap Kelas -->
+          <div class="col-lg-4 col-6">
+            <div class="small-box bg-teal">
+              <div class="inner">
+                <h3 id="statRekapKelas">--%</h3>
+                <p>Rekap Kelas</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-clipboard-list"></i>
+              </div>
+              <a href="javascript:void(0)" onclick="initRekapKelasModule()" class="small-box-footer">Lihat Rincian <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+
+          <!-- 6. Ketidakhadiran -->
+          <div class="col-lg-4 col-6">
+            <div class="small-box bg-indigo">
+              <div class="inner">
+                <h3 id="statAbsensi">--%</h3>
+                <p>Ketidakhadiran</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-user-clock"></i>
+              </div>
+              <a href="javascript:void(0)" onclick="initAbsensiModule()" class="small-box-footer">Lihat Rincian <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+
+          <!-- 7. Jurnal Tahunan T2Q -->
+          <div class="col-lg-4 col-12">
+            <div class="small-box bg-purple">
+              <div class="inner">
+                <h3 id="statJurnalT2q">--%</h3>
+                <p>Jurnal Tahunan T2Q</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-book-open"></i>
+              </div>
+              <a href="javascript:void(0)" onclick="initJurnalT2qModule()" class="small-box-footer">Lihat Rincian <i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
         </div>
