@@ -15,6 +15,39 @@ function parsePercentage(val) {
   return num;
 }
 
+// Menghitung persentase Jurnal Harian (Total Realisasi / Total Yang Harus Diisi)
+function calculateJurnalHarian(rawData) {
+  if (!rawData || rawData.length <= 2) return "0%";
+
+  let totalHarusDiisi = 0;
+  let totalRealisasi = 0;
+
+  // Mulai dari baris ke-3 (index 2) untuk melewati header
+  for (let i = 2; i < rawData.length; i++) {
+    const row = rawData[i];
+    if (!row || row.length < 4) continue;
+
+    const firstColVal = String(row[0] || '').toLowerCase();
+    const secondColVal = String(row[1] || '').toLowerCase();
+
+    // Hentikan iterasi saat menyentuh baris Jumlah / Total di paling bawah
+    if (firstColVal.includes('jumlah') || firstColVal.includes('total') || 
+        secondColVal.includes('jumlah') || secondColVal.includes('total')) {
+      break;
+    }
+
+    const harusDiisi = parseFloat(row[2]) || 0; // Kolom C (YANG HARUS DIISI)
+    const realisasi = parseFloat(row[3]) || 0;  // Kolom D (REALISASI)
+
+    totalHarusDiisi += harusDiisi;
+    totalRealisasi += realisasi;
+  }
+
+  if (totalHarusDiisi === 0) return "0%";
+  const percentage = (totalRealisasi / totalHarusDiisi) * 100;
+  return percentage.toFixed(2) + "%";
+}
+
 // Menghitung rata-rata nilai kolom secara dinamis
 function calculateColumnAverage(rawData, colIndex, startRowIndex) {
   if (!rawData || rawData.length <= startRowIndex) return "0%";
@@ -80,11 +113,11 @@ function calculateAbsensiToday(rawData) {
 // Fungsi utama memuat seluruh indikator persentase
 async function loadDashboardStats() {
   const config = [
-    { sheet: 'Jurnal Harian', elementId: 'statJurnalHarian', col: 3, startRow: 1, type: 'avg' },
+    { sheet: 'Jurnal Harian', elementId: 'statJurnalHarian', type: 'jurnal_harian' }, // Diubah tipe kalkulasinya
     { sheet: 'Jurnal fix', elementId: 'statJurnalFix', col: 4, startRow: 1, type: 'avg' },
     { sheet: 'Jurnal', elementId: 'statJurnal', col: 40, startRow: 2, type: 'avg' },
     { sheet: 'Jurnal fix T2Q', elementId: 'statJurnalFixT2q', col: 4, startRow: 1, type: 'avg' },
-    { sheet: 'Jurnal T2Q', elementId: 'statJurnalT2q', col: 40, startRow: 2, type: 'avg' },    // Dipindah ke baris ini
+    { sheet: 'Jurnal T2Q', elementId: 'statJurnalT2q', col: 40, startRow: 2, type: 'avg' },
     { sheet: 'Rekap Kelas', elementId: 'statRekapKelas', col: 4, startRow: 1, type: 'avg' },
     { sheet: 'Absensi', elementId: 'statAbsensi', type: 'absensi' }
   ];
@@ -98,7 +131,9 @@ async function loadDashboardStats() {
 
       if (result.status === 'success' && Array.isArray(result.data)) {
         let resultText = "0%";
-        if (item.type === 'avg') {
+        if (item.type === 'jurnal_harian') {
+          resultText = calculateJurnalHarian(result.data);
+        } else if (item.type === 'avg') {
           resultText = calculateColumnAverage(result.data, item.col, item.startRow);
         } else if (item.type === 'absensi') {
           resultText = calculateAbsensiToday(result.data);
