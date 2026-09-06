@@ -17,23 +17,22 @@ function parsePercentage(val) {
 
 // Menghitung persentase Jurnal Harian (Total Realisasi / Total Yang Harus Diisi)
 function calculateJurnalHarian(rawData) {
-  if (!rawData || rawData.length <= 2) return "0%";
+  if (!rawData || rawData.length <= 1) return "0%";
 
   let totalHarusDiisi = 0;
   let totalRealisasi = 0;
 
-  // Mulai dari baris ke-3 (index 2) untuk melewati header
-  for (let i = 2; i < rawData.length; i++) {
+  for (let i = 1; i < rawData.length; i++) {
     const row = rawData[i];
     if (!row || row.length < 4) continue;
 
-    const firstColVal = String(row[0] || '').toLowerCase();
-    const secondColVal = String(row[1] || '').toLowerCase();
+    const colA = String(row[0] || '').trim().toLowerCase();
+    const namaGuru = String(row[1] || '').trim();
+    const namaLower = namaGuru.toLowerCase();
 
-    // Hentikan iterasi saat menyentuh baris Jumlah / Total di paling bawah
-    if (firstColVal.includes('jumlah') || firstColVal.includes('total') || 
-        secondColVal.includes('jumlah') || secondColVal.includes('total')) {
-      break;
+    // SKIP jika nama guru kosong (misal baris total C58/D58) ATAU mengandung kata Total/Jumlah
+    if (!namaGuru || colA.includes('total') || colA.includes('jumlah') || namaLower.includes('total') || namaLower.includes('jumlah') || namaLower.includes('rerata')) {
+      continue;
     }
 
     const harusDiisi = parseFloat(row[2]) || 0; // Kolom C (YANG HARUS DIISI)
@@ -113,7 +112,7 @@ function calculateAbsensiToday(rawData) {
 // Fungsi utama memuat seluruh indikator persentase
 async function loadDashboardStats() {
   const config = [
-    { sheet: 'Jurnal Harian', elementId: 'statJurnalHarian', type: 'jurnal_harian' }, // Diubah tipe kalkulasinya
+    { sheet: 'Jurnal Harian', elementId: 'statJurnalHarian', type: 'jurnal_harian' },
     { sheet: 'Jurnal fix', elementId: 'statJurnalFix', col: 4, startRow: 1, type: 'avg' },
     { sheet: 'Jurnal', elementId: 'statJurnal', col: 40, startRow: 2, type: 'avg' },
     { sheet: 'Jurnal fix T2Q', elementId: 'statJurnalFixT2q', col: 4, startRow: 1, type: 'avg' },
