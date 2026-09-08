@@ -2,35 +2,27 @@
 // LOGIKA OTENTIKASI DASHBOARD SDIT AL-KAUTSAR
 // ==========================================
 
-// Fungsi untuk menangani proses login
+// Fungsi untuk menangani proses login secara statis
 async function loginUser(username, password) {
-  try {
-    const payload = {
-      action: "login",
+  // Kredensial lokal
+  const VALID_USERNAME = "sditalkautsar";
+  const VALID_PASSWORD = "69881812";
+
+  // Simulasi jeda singkat agar animasi loading tombol tetap berjalan seamless
+  await new Promise(resolve => setTimeout(resolve, 400));
+
+  if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+    const userData = {
       username: username,
-      password: password
+      nama: "Admin SDIT Al-Kautsar",
+      role: "Admin"
     };
 
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const result = await response.json();
-
-    if (result.status === "sukses") {
-      // Simpan data sesi pengguna ke localStorage
-      localStorage.setItem(APP_CONFIG.sessionKey, JSON.stringify(result.user));
-      return { sukses: true, pesan: result.pesan, user: result.user };
-    } else {
-      return { sukses: false, pesan: result.pesan || "Username atau password salah!" };
-    }
-  } catch (error) {
-    console.error("Error Login:", error);
-    return { sukses: false, pesan: "Gagal terhubung ke server. Periksa koneksi internet Anda." };
+    // Simpan data sesi pengguna ke localStorage menggunakan key dari APP_CONFIG
+    localStorage.setItem(APP_CONFIG.sessionKey, JSON.stringify(userData));
+    return { sukses: true, pesan: "Login berhasil!", user: userData };
+  } else {
+    return { sukses: false, pesan: "Username atau password salah!" };
   }
 }
 
