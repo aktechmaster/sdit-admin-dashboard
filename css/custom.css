@@ -192,12 +192,30 @@ body {
 }
 
 /* ==========================================
-   6. PERBAIKI LOGO SIDEBAR AGAR BUNDAR SEMPURNA
+   6. PERBAIKI LOGO & TEKS SIDEBAR
    ========================================== */
+/* Agar logo bundar sempurna */
 .brand-image {
-  width: 36px !important;       /* Lebar dipaksa */
-  height: 36px !important;      /* Tinggi sama dengan lebar */
-  object-fit: cover !important; /* Gambar tidak lonjong, bagian terpotong rapi */
-  border-radius: 50% !important;/* Bentuk bundar sempurna */
-  opacity: .9 !important;       /* Sedikit transparan, bisa diubah */
+  width: 36px !important;
+  height: 36px !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  opacity: .9 !important;
+}
+
+/* Agar teks kecil, rapi, dan tidak mepet */
+.brand-text {
+  font-size: 0.9rem !important;   /* Ukuran tulisan lebih kecil (bisa ubah: 0.85 / 0.95) */
+  font-weight: 600 !important;    /* Tidak terlalu tebal */
+  margin-left: 10px !important;   /* Jarak dari logo, tidak mepet */
+  letter-spacing: 0.02em;         /* Jarak antar huruf sedikit longgar */
+  line-height: 1.2;               /* Ketinggian baris pas */
+}
+
+/* (Opsional) Agar tinggi keseluruhan brand-link lebih proporsional */
+.brand-link {
+  padding: 0.7rem 0.8rem !important;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
 }
