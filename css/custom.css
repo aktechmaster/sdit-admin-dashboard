@@ -190,3 +190,14 @@ body {
   border-color: #4f46e5 !important;
   color: #ffffff !important;
 }
+
+/* ==========================================
+   6. PERBAIKI LOGO SIDEBAR AGAR BUNDAR SEMPURNA
+   ========================================== */
+.brand-image {
+  width: 36px !important;       /* Lebar dipaksa */
+  height: 36px !important;      /* Tinggi sama dengan lebar */
+  object-fit: cover !important; /* Gambar tidak lonjong, bagian terpotong rapi */
+  border-radius: 50% !important;/* Bentuk bundar sempurna */
+  opacity: .9 !important;       /* Sedikit transparan, bisa diubah */
+}
